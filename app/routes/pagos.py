@@ -8,7 +8,8 @@ from app.models.miembro import Miembro
 from app.models.tipo_membresia import TipoMembresia
 from app.models.membresia import Membresia
 from app.routes import admin_required
-from datetime import datetime, timedelta
+from app.utils import bolivia_now
+from datetime import timedelta
 
 pagos_bp = Blueprint('pagos', __name__)
 
@@ -146,25 +147,33 @@ def pendientes():
 @admin_required
 def aprobar(id):
     pago = Pago.query.get_or_404(id)
-    pago.estado = 'pagado'
-    pago.fecha_verificacion = datetime.utcnow()
+    pago.estado = 'aprobado'
+    pago.fecha_verificacion = bolivia_now()
     pago.verificado_por = current_user.id
 
     if pago.tipo_membresia_id:
         tipo = TipoMembresia.query.get(pago.tipo_membresia_id)
         if tipo:
-            fecha_inicio = datetime.utcnow()
-            fecha_fin = fecha_inicio + timedelta(days=tipo.duracion_dias)
-            membresia = Membresia(
-                miembro_id=pago.miembro_id,
-                tipo_id=tipo.id,
-                fecha_inicio=fecha_inicio,
-                fecha_fin=fecha_fin,
-                estado='activa'
-            )
-            db.session.add(membresia)
-            db.session.flush()
-            pago.membresia_id = membresia.id
+            ahora = bolivia_now()
+            fecha_fin = ahora + timedelta(days=tipo.duracion_dias)
+
+            if pago.membresia_id:
+                membresia = Membresia.query.get(pago.membresia_id)
+                if membresia:
+                    membresia.estado = 'activa'
+                    membresia.fecha_inicio = ahora
+                    membresia.fecha_fin = fecha_fin
+            else:
+                membresia = Membresia(
+                    miembro_id=pago.miembro_id,
+                    tipo_id=tipo.id,
+                    fecha_inicio=ahora,
+                    fecha_fin=fecha_fin,
+                    estado='activa'
+                )
+                db.session.add(membresia)
+                db.session.flush()
+                pago.membresia_id = membresia.id
 
     miembro = Miembro.query.get(pago.miembro_id)
     if miembro:
