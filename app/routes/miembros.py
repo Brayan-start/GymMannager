@@ -119,12 +119,26 @@ def ver(id):
         membresia_activa=membresia_activa, dias_restantes=dias_restantes,
         asistencias_mes=asistencias_mes, now=datetime.utcnow())
 
-@miembros_bp.route('/eliminar/<int:id>')
+@miembros_bp.route('/desactivar/<int:id>')
 @login_required
 @admin_required
-def eliminar(id):
+def desactivar(id):
     miembro = Miembro.query.get_or_404(id)
     miembro.estado = 'inactivo'
     db.session.commit()
     flash('Miembro desactivado', 'success')
+    return redirect(url_for('miembros.listar'))
+
+@miembros_bp.route('/eliminar/<int:id>', methods=['POST'])
+@login_required
+@admin_required
+def eliminar(id):
+    miembro = Miembro.query.get_or_404(id)
+    if miembro.usuario_id:
+        user = Usuario.query.get(miembro.usuario_id)
+        if user:
+            db.session.delete(user)
+    db.session.delete(miembro)
+    db.session.commit()
+    flash('Miembro y usuario eliminados permanentemente', 'success')
     return redirect(url_for('miembros.listar'))

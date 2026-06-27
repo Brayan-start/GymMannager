@@ -88,7 +88,10 @@
                         {% else %}
                         <a href="{{ url_for('membresias.asignar', miembro_id=m.id) }}" class="btn btn-outline-primary" title="Renovar"><i class="bi bi-arrow-clockwise"></i></a>
                         {% endif %}
-                        <button type="button" class="btn btn-outline-danger" title="Desactivar" data-bs-toggle="modal" data-bs-target="#modalDelete" data-url="{{ url_for('miembros.eliminar', id=m.id) }}" data-name="{{ m.nombre_completo }}"><i class="bi bi-person-x"></i></button>
+                        <a href="{{ url_for('miembros.desactivar', id=m.id) }}" class="btn btn-outline-danger" title="Desactivar" onclick="return confirm('¿Estás seguro de que quieres desactivar este miembro?')"><i class="bi bi-person-x"></i></a>
+                        <form method="POST" action="{{ url_for('miembros.eliminar', id=m.id) }}" style="display:inline" onsubmit="return confirm('¿Estás seguro de que quieres ELIMINAR permanentemente este miembro? Esta acción no se puede deshacer.')">
+                            <button type="submit" class="btn btn-outline-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+                        </form>
                     </div>
                 </td>
             </tr>
