@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Miembros{% endblock %}
+{% block content %}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle"></i> <strong>Gestión de Miembros</strong><br>
+    Aquí puedes registrar nuevos miembros, ver su perfil, asignar membresías y gestionar su estado.
+    Los miembros con badge <span class="badge bg-success">Activo</span> tienen membresía vigente.
+</div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-people"></i> Miembros</h4>
+    <a href="{{ url_for('miembros.nuevo') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nuevo Miembro</a>
+</div>
+<form class="row g-2 mb-3">
+    <div class="col-auto">
+        <input type="text" name="search" class="form-control" placeholder="Buscar nombre, CI, teléfono..." value="{{ search }}" style="min-width:250px">
+    </div>
+    <div class="col-auto">
+        <select name="estado" class="form-select">
+            <option value="">Todos</option>
+            <option value="activo" {{ 'selected' if estado=='activo' }}>Activos</option>
+            <option value="vencido" {{ 'selected' if estado=='vencido' }}>Vencidos</option>
+            <option value="inactivo" {{ 'selected' if estado=='inactivo' }}>Inactivos</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-dark"><i class="bi bi-search"></i> Filtrar</button>
+    </div>
+</form>
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>CI / Teléfono</th>
+                <th>Estado</th>
+                <th>Membresía</th>
+                <th>Registro</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in miembros %}
+            {% set ma = m.membresia_activa %}
+            {% set dias_rest = (ma.fecha_fin - now).days if ma else 0 %}
+            <tr>
+                <td>{{ m.id }}</td>
+                <td>
+                    <strong>{{ m.nombre_completo }}</strong>
+                    {% if m.email %}<br><small class="text-muted">{{ m.email }}</small>{% endif %}
+                </td>
+                <td>
+                    {% if m.ci %}{{ m.ci }}<br>{% endif %}
+                    <small class="text-muted">{{ m.telefono or '-' }}</small>
+                </td>
+                <td>
+                    {% if m.estado == 'activo' %}
+                        {% if ma and dias_rest <= 7 %}
+                        <span class="badge bg-warning text-dark">Por vencer</span>
+                        {% else %}
+                        <span class="badge bg-success">Activo</span>
+                        {% endif %}
+                    {% elif m.estado == 'vencido' %}
+                    <span class="badge bg-danger">Vencido</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Inactivo</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if ma %}
+                    <small>
+                        <strong>{{ ma.tipo.nombre }}</strong><br>
+                        <span class="text-{{ 'danger' if dias_rest <= 0 else 'warning' if dias_rest <= 7 else 'success' }}">
+                            {{ dias_rest }} días restantes
+                        </span>
+                    </small>
+                    {% else %}
+                    <span class="text-muted"><em>Sin membresía</em></span>
+                    {% endif %}
+                </td>
+                <td>{{ m.fecha_registro.strftime('%d/%m/%Y') }}</td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <a href="{{ url_for('miembros.ver', id=m.id) }}" class="btn btn-outline-info" title="Ver perfil"><i class="bi bi-eye"></i></a>
+                        <a href="{{ url_for('miembros.editar', id=m.id) }}" class="btn btn-outline-warning" title="Editar"><i class="bi bi-pencil"></i></a>
+                        {% if not ma %}
+                        <a href="{{ url_for('membresias.asignar', miembro_id=m.id) }}" class="btn btn-outline-success" title="Asignar membresía"><i class="bi bi-card-checklist"></i></a>
+                        {% else %}
+                        <a href="{{ url_for('membresias.asignar', miembro_id=m.id) }}" class="btn btn-outline-primary" title="Renovar"><i class="bi bi-arrow-clockwise"></i></a>
+                        {% endif %}
+                        <button type="button" class="btn btn-outline-danger" title="Desactivar" data-bs-toggle="modal" data-bs-target="#modalDelete" data-url="{{ url_for('miembros.eliminar', id=m.id) }}" data-name="{{ m.nombre_completo }}"><i class="bi bi-person-x"></i></button>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="text-center text-muted py-4">No hay miembros registrados. <a href="{{ url_for('miembros.nuevo') }}">Crea el primero</a></td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

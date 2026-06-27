@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Reporte de Pagos{% endblock %}
+{% block content %}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle"></i> <strong>Reporte de Pagos a Instructores</strong><br>
+    Resumen mensual de clases dictadas y montos a pagar por instructor.
+    Usa los botones <i class="bi bi-check-circle-fill text-success"></i> en la columna Pago para marcar como pagado.
+</div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-cash-coin text-success"></i> Pagos a Instructores</h4>
+    <a href="{{ url_for('instructores.listar') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+</div>
+
+<form class="row g-2 mb-3">
+    <div class="col-auto">
+        <label class="form-label">Mes</label>
+        <select name="mes" class="form-select" onchange="this.form.submit()">
+            {% for m in range(1, 13) %}
+            <option value="{{ m }}" {{ 'selected' if mes==m }}>{{ 'Enero Febrero Marzo Abril Mayo Junio Julio Agosto Septiembre Octubre Noviembre Diciembre'.split(' ')[m-1] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-auto">
+        <label class="form-label">Año</label>
+        <select name="anio" class="form-select" onchange="this.form.submit()">
+            {% for a in range(ahora.year - 2, ahora.year + 2) %}
+            <option value="{{ a }}" {{ 'selected' if anio==a }}>{{ a }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Instructor</th>
+                <th>Teléfono</th>
+                <th>Clases Dictadas</th>
+                <th>Tarifa / Clase</th>
+                <th>Total</th>
+                <th>Pagado</th>
+                <th>Pendiente</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in reporte %}
+            <tr>
+                <td>
+                    <strong>{{ r.instructor.nombre_completo }}</strong>
+                    <br><small class="text-muted">{{ r.instructor.especialidad or '' }}</small>
+                </td>
+                <td>{{ r.instructor.telefono or '-' }}</td>
+                <td class="text-center"><strong>{{ r.clases_dictadas }}</strong></td>
+                <td><strong>{{ "%.0f"|format(r.tarifa) }} Bs.</strong></td>
+                <td><strong class="text-primary">{{ "%.0f"|format(r.total) }} Bs.</strong></td>
+                <td><span class="text-success"><strong>{{ "%.0f"|format(r.pagado) }} Bs.</strong></span></td>
+                <td>
+                    {% if r.pendiente > 0 %}
+                    <span class="text-danger"><strong>{{ "%.0f"|format(r.pendiente) }} Bs.</strong></span>
+                    {% else %}
+                    <span class="text-success"><i class="bi bi-check-circle-fill"></i> Pagado</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="text-muted text-center py-4">No hay instructores activos</td></tr>
+            {% endfor %}
+        </tbody>
+        <tfoot class="table-dark">
+            <tr>
+                <td colspan="4"><strong>TOTAL GENERAL</strong></td>
+                <td><strong>{{ "%.0f"|format(total_general) }} Bs.</strong></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+{% endblock %}

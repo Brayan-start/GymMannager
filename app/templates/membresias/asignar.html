@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Asignar Membresía{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white"><h4 class="mb-0">Asignar Membresía a {{ miembro.nombre_completo }}</h4></div>
+            <div class="card-body">
+                <form method="POST" id="form-asignar">
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Membresía</label>
+                        <select name="tipo_id" id="tipo_id" class="form-select" required>
+                            <option value="">Seleccionar...</option>
+                            {% for t in tipos %}
+                            <option value="{{ t.id }}" data-precio="{{ t.precio }}" data-dias="{{ t.duracion_dias }}">
+                                {{ t.nombre }} - {{ "%.0f"|format(t.precio) }} Bs. ({{ t.duracion_dias }} días)
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Promoción (opcional)</label>
+                        <select name="promo_id" id="promo_id" class="form-select">
+                            <option value="">Sin promoción</option>
+                            {% for p in promos %}
+                            <option value="{{ p.id }}" data-tipo="{{ p.tipo }}" data-valor="{{ p.valor }}">
+                                {{ p.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div id="promo-info" class="alert alert-warning py-2 d-none">
+                        <small><i class="bi bi-tags"></i> Promoción activa: <strong></strong></small>
+                    </div>
+                    <div class="card bg-light mb-3">
+                        <div class="card-body py-2">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <small class="text-muted d-block">Precio final</small>
+                                    <strong id="precio-final" class="fs-5 text-success">0</strong> <strong class="text-success">Bs.</strong>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted d-block">Duración</small>
+                                    <strong id="duracion-final" class="fs-5">0</strong> <strong>días</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Método de Pago</label>
+                        <select name="metodo_pago" class="form-select">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="tarjeta">Tarjeta</option>
+                            <option value="transferencia">Transferencia</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Referencia</label>
+                        <input type="text" name="referencia" class="form-control" placeholder="Opcional">
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('miembros.ver', id=miembro.id) }}" class="btn btn-secondary">Cancelar</a>
+                        <button type="button" class="btn btn-success" id="btn-confirmar-asignacion"><i class="bi bi-check-lg"></i> Asignar y Cobrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalConfirmarAsignacion" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-check-circle"></i> Confirmar Asignación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmacion-resumen"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-success" form="form-asignar"><i class="bi bi-check-lg"></i> Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('btn-confirmar-asignacion')?.addEventListener('click', function() {
+    const tipoEl = document.getElementById('tipo_id');
+    const tipoText = tipoEl.options[tipoEl.selectedIndex]?.text || 'No seleccionado';
+    const precio = document.getElementById('precio-final').textContent;
+    const dias = document.getElementById('duracion-final').textContent;
+    const promoEl = document.getElementById('promo_id');
+    const promoText = promoEl.options[promoEl.selectedIndex]?.text || 'Sin promoción';
+    document.getElementById('confirmacion-resumen').innerHTML = `
+        <strong>Miembro:</strong> {{ miembro.nombre_completo }}<br>
+        <strong>Plan:</strong> ${tipoText}<br>
+        <strong>Promoción:</strong> ${promoText}<br>
+        <strong>Precio final:</strong> ${precio} Bs.<br>
+        <strong>Duración:</strong> ${dias} días<br><br>
+        ¿Confirmar la asignación?
+    `;
+    new bootstrap.Modal(document.getElementById('modalConfirmarAsignacion')).show();
+});
+</script>
+{% endblock %}

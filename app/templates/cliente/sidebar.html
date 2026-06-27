@@ -1,0 +1,27 @@
+<ul class="nav flex-column components">
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint == 'cliente.dashboard' }}" href="{{ url_for('cliente.dashboard') }}">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint == 'cliente.membresia' or request.endpoint == 'cliente.adquirir_membresia' }}" href="{{ url_for('cliente.membresia') }}">
+            <i class="bi bi-credit-card"></i> Mi Membresía
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint == 'cliente.clases' }}" href="{{ url_for('cliente.clases') }}">
+            <i class="bi bi-calendar-event"></i> Clases Disponibles
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint == 'cliente.asistencia' }}" href="{{ url_for('cliente.asistencia') }}">
+            <i class="bi bi-check-circle"></i> Mi Asistencia
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint == 'cliente.pagos' }}" href="{{ url_for('cliente.pagos') }}">
+            <i class="bi bi-cash-coin"></i> Mis Pagos
+        </a>
+    </li>
+</ul>

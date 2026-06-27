@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Mis Pagos{% endblock %}
+{% block content %}
+<h4 class="mb-4"><i class="bi bi-cash-coin"></i> Mis Pagos</h4>
+
+<a href="{{ url_for('cliente.nuevo_pago') }}" class="btn btn-success mb-3"><i class="bi bi-plus-lg"></i> Realizar Pago</a>
+
+<div class="card shadow">
+    <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="bi bi-receipt"></i> Historial de Pagos</h5></div>
+    <div class="card-body p-0">
+        <table class="table table-hover table-striped mb-0">
+            <thead class="table-light"><tr><th>Fecha</th><th>Concepto</th><th>Monto</th><th>Método</th><th>Estado</th><th>Comprobante</th></tr></thead>
+            <tbody>
+                {% for p in pagos %}
+                <tr>
+                    <td>{{ p.fecha_pago.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ p.tipo_membresia.nombre if p.tipo_membresia else 'Pago' }}</td>
+                    <td><strong>{{ "%.2f"|format(p.monto) }} Bs.</strong></td>
+                    <td><span class="badge bg-info">{{ p.metodo_pago|capitalize }}</span></td>
+                    <td>
+                        {% if p.estado == 'pagado' %}
+                        <span class="badge bg-success">Aprobado</span>
+                        {% elif p.estado == 'rechazado' %}
+                        <span class="badge bg-danger">Rechazado</span>
+                        <button type="button" class="btn btn-sm btn-outline-danger ms-1" title="{{ p.motivo_rechazo }}" data-bs-toggle="tooltip"><i class="bi bi-info-circle"></i></button>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">Pendiente</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if p.comprobante_url %}
+                        <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalComprobante{{ p.id }}"><i class="bi bi-eye"></i></button>
+                        {% if p.motivo_rechazo %}
+                        <div class="small text-danger mt-1" title="{{ p.motivo_rechazo }}">
+                            <i class="bi bi-exclamation-circle"></i> {{ p.motivo_rechazo[:50] }}{{ '...' if p.motivo_rechazo|length > 50 }}
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <span class="text-muted small">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if p.comprobante_url %}
+                <div class="modal fade" id="modalComprobante{{ p.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-dark text-white">
+                                <h5 class="modal-title"><i class="bi bi-file-earmark-image"></i> Mi Comprobante</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body text-center p-4">
+                                {% if p.comprobante_url.endswith('.pdf') %}
+                                <iframe src="{{ url_for('static', filename=p.comprobante_url) }}" style="width:100%;height:500px;border:none;"></iframe>
+                                {% else %}
+                                <img src="{{ url_for('static', filename=p.comprobante_url) }}" class="img-fluid rounded shadow" style="max-height:500px;">
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% else %}
+                <tr><td colspan="6" class="text-muted text-center py-4">Sin pagos registrados</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

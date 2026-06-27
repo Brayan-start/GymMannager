@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Mi Membresía{% endblock %}
+{% block content %}
+<h4 class="mb-4"><i class="bi bi-credit-card"></i> Mi Membresía</h4>
+
+{% if membresia %}
+<div class="card shadow card-border-top-success mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="text-success"><i class="bi bi-check-circle"></i> Membresía Activa</h5>
+                <h3>{{ membresia.tipo.nombre }}</h3>
+                <p class="text-muted mb-1">
+                    <i class="bi bi-calendar-check"></i> Inicio: {{ membresia.fecha_inicio.strftime('%d/%m/%Y') }}<br>
+                    <i class="bi bi-calendar-x"></i> Vence: {{ membresia.fecha_fin.strftime('%d/%m/%Y') }}<br>
+                    <i class="bi bi-clock"></i>
+                    {% set dias_rest = (membresia.fecha_fin - membresia.fecha_inicio).days %}
+                    {{ dias_rest }} días restantes
+                </p>
+            </div>
+            <i class="bi bi-card-checklist fs-1 text-success opacity-25"></i>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="card shadow card-border-top-warning mb-4">
+    <div class="card-body">
+        <h5 class="text-warning"><i class="bi bi-exclamation-circle"></i> Sin Membresía Activa</h5>
+        <p class="text-muted">Selecciona un plan para empezar a entrenar</p>
+    </div>
+</div>
+{% endif %}
+
+<h5 class="mb-3">Planes Disponibles</h5>
+<div class="row">
+    {% for t in tipos %}
+    <div class="col-md-4 mb-3">
+        <div class="card shadow h-100 text-center">
+            <div class="card-body">
+                <i class="bi bi-trophy fs-1 text-success"></i>
+                <h5 class="mt-2">{{ t.nombre }}</h5>
+                <h3 class="text-success fw-bold">{{ "%.0f"|format(t.precio) }} Bs.</h3>
+                <p class="text-muted">{{ t.duracion_dias }} días</p>
+                <p class="small">{{ t.descripcion or 'Acceso completo' }}</p>
+                {% if not membresia %}
+                <a href="{{ url_for('cliente.adquirir_membresia', tipo_id=t.id) }}" class="btn btn-success w-100"><i class="bi bi-cart-check"></i> Elegir Plan</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

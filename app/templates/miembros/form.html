@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if miembro else 'Nuevo' }} Miembro{% endblock %}
+{% block content %}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle"></i> <strong>Registrar Miembro</strong><br>
+    Completa los datos del nuevo miembro. Los campos con * son obligatorios.
+    Si marcas "Crear usuario", el miembro podrá acceder al sistema.
+</div>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <h4 class="mb-0"><i class="bi bi-person-plus"></i> {{ 'Editar' if miembro else 'Nuevo' }} Miembro</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Nombre *</label>
+                            <input type="text" name="nombre" class="form-control" value="{{ miembro.nombre if miembro else '' }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Apellido *</label>
+                            <input type="text" name="apellido" class="form-control" value="{{ miembro.apellido if miembro else '' }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">C.I.</label>
+                            <input type="text" name="ci" class="form-control" value="{{ miembro.ci if miembro else '' }}" placeholder="Cédula de identidad">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ miembro.email if miembro else '' }}" placeholder="correo@ejemplo.com">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" name="telefono" class="form-control" value="{{ miembro.telefono if miembro else '' }}" placeholder="+591 7XXXXXXX">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fecha de Nacimiento</label>
+                            <input type="date" name="fecha_nacimiento" class="form-control" value="{{ miembro.fecha_nacimiento.strftime('%Y-%m-%d') if miembro and miembro.fecha_nacimiento else '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Dirección</label>
+                            <input type="text" name="direccion" class="form-control" value="{{ miembro.direccion if miembro else '' }}">
+                        </div>
+                    </div>
+                    {% if miembro %}
+                    <div class="mb-3">
+                        <label class="form-label">Estado</label>
+                        <select name="estado" class="form-select">
+                            <option value="activo" {{ 'selected' if miembro.estado=='activo' }}>Activo</option>
+                            <option value="vencido" {{ 'selected' if miembro.estado=='vencido' }}>Vencido</option>
+                            <option value="inactivo" {{ 'selected' if miembro.estado=='inactivo' }}>Inactivo</option>
+                        </select>
+                    </div>
+                    {% else %}
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="crear_usuario" name="crear_usuario">
+                        <label class="form-check-label" for="crear_usuario">Crear usuario para acceso al sistema</label>
+                    </div>
+                    <div id="usuario-fields" class="bg-light rounded p-3 mb-3" style="display:none">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Usuario</label>
+                                <input type="text" name="username" class="form-control" placeholder="nombre_usuario">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email_reg" class="form-control" placeholder="correo@ejemplo.com">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contraseña</label>
+                            <input type="password" name="password" class="form-control" placeholder="••••••••">
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('miembros.listar') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Cancelar</a>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> {{ 'Actualizar' if miembro else 'Guardar Miembro' }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('crear_usuario')?.addEventListener('change', function() {
+    document.getElementById('usuario-fields').style.display = this.checked ? 'block' : 'none';
+});
+</script>
+{% endblock %}

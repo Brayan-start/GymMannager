@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+instance/
+.env
+*.db
+venv/
+.venv/
+app/static/uploads/
+app/static/img/qr_gymmanager.png
+

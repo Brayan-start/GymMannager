@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if pago else 'Nuevo' }} Pago{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white"><h4 class="mb-0">{{ 'Editar' if pago else 'Nuevo' }} Pago</h4></div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {% if not pago %}
+                    <div class="mb-3">
+                        <label class="form-label">Miembro</label>
+                        <select name="miembro_id" class="form-select" required>
+                            <option value="">Seleccionar...</option>
+                            {% for m in miembros %}
+                            <option value="{{ m.id }}">{{ m.nombre_completo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Membresía</label>
+                        <select name="tipo_membresia_id" class="form-select" id="tipoMembresiaSelect">
+                            <option value="">Seleccionar (opcional)</option>
+                            {% for t in tipos %}
+                            <option value="{{ t.id }}" data-precio="{{ t.precio }}">{{ t.nombre }} - {{ "%.0f"|format(t.precio) }} Bs.</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <label class="form-label">Monto *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">Bs.</span>
+                            <input type="number" step="0.01" name="monto" id="montoInput" class="form-control" value="{{ pago.monto if pago else '' }}" required>
+                        </div>
+                        <div id="cambioInfo" class="form-text text-success d-none"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Método de Pago</label>
+                            <select name="metodo_pago" class="form-select" id="metodoPagoSelect">
+                                {% for val, label in metodos %}
+                                <option value="{{ val }}" {{ 'selected' if pago and pago.metodo_pago==val }}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Estado</label>
+                            <select name="estado" class="form-select" id="estadoSelect">
+                                {% for val, label in estados %}
+                                <option value="{{ val }}" {{ 'selected' if pago and pago.estado==val }}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="comprobanteGroup">
+                        <label class="form-label">Comprobante de pago <small class="text-muted">(jpg, png, pdf - máx 5MB)</small></label>
+                        <input type="file" name="comprobante" class="form-control" accept=".jpg,.jpeg,.png,.pdf">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Referencia</label>
+                        <input type="text" name="referencia" class="form-control" value="{{ pago.referencia if pago else '' }}">
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('pagos.listar') }}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-dark">{{ 'Actualizar' if pago else 'Registrar Pago' }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const metodoSelect = document.getElementById('metodoPagoSelect');
+    const comprobanteGroup = document.getElementById('comprobanteGroup');
+    const montoInput = document.getElementById('montoInput');
+    const tipoSelect = document.getElementById('tipoMembresiaSelect');
+    const cambioInfo = document.getElementById('cambioInfo');
+
+    function toggleComprobante() {
+        if (metodoSelect.value === 'qr') {
+            comprobanteGroup.style.display = 'block';
+        } else {
+            comprobanteGroup.style.display = 'none';
+        }
+    }
+
+    function calcularCambio() {
+        const monto = parseFloat(montoInput.value) || 0;
+        const selected = tipoSelect ? tipoSelect.options[tipoSelect.selectedIndex] : null;
+        const precio = selected ? parseFloat(selected.dataset.precio) || 0 : 0;
+        if (monto > precio && precio > 0) {
+            const cambio = monto - precio;
+            cambioInfo.classList.remove('d-none');
+            cambioInfo.innerHTML = '<i class="bi bi-cash"></i> Cambio: <strong>' + cambio.toFixed(2) + ' Bs.</strong>';
+        } else {
+            cambioInfo.classList.add('d-none');
+        }
+    }
+
+    if (metodoSelect) metodoSelect.addEventListener('change', toggleComprobante);
+    if (montoInput) montoInput.addEventListener('input', calcularCambio);
+    if (tipoSelect) tipoSelect.addEventListener('change', calcularCambio);
+    toggleComprobante();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Promociones{% endblock %}
+{% block content %}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle"></i> <strong>Promociones y Descuentos</strong><br>
+    Crea promociones para atraer nuevos miembros. Tipos disponibles: <strong>2x1</strong> (paga 1 mes, lleva 2),
+    <strong>% Descuento</strong> (porcentaje sobre el plan), <strong>Descuento fijo</strong> (monto en Bs.).
+    Las promociones se aplican automáticamente al asignar membresías.
+</div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-tags"></i> Promociones y Descuentos</h4>
+    <a href="{{ url_for('promociones.nuevo') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nueva Promoción</a>
+</div>
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Valor</th>
+                <th>Aplica a</th>
+                <th>Vigencia</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in promos %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td><strong>{{ p.nombre }}</strong></td>
+                <td>
+                    {% if p.tipo == '2x1' %}<span class="badge bg-info">2x1</span>
+                    {% elif p.tipo == 'descuento_porcentaje' %}<span class="badge bg-warning text-dark">{{ "%.0f"|format(p.valor) }}%</span>
+                    {% else %}<span class="badge bg-primary">{{ "%.0f"|format(p.valor) }} Bs.</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if p.tipo == '2x1' %}Duplica duración
+                    {% elif p.tipo == 'descuento_porcentaje' %}{{ "%.0f"|format(p.valor) }}% off
+                    {% else %}{{ "%.0f"|format(p.valor) }} Bs. off
+                    {% endif %}
+                </td>
+                <td>{{ p.tipo_membresia.nombre if p.tipo_membresia else 'Todos los planes' }}</td>
+                <td>
+                    <small>
+                        {% if p.fecha_inicio %}{{ p.fecha_inicio.strftime('%d/%m/%Y') }}{% endif %}
+                        {% if p.fecha_fin %} - {{ p.fecha_fin.strftime('%d/%m/%Y') }}{% endif %}
+                    </small>
+                </td>
+                <td>
+                    {% if p.esta_activa %}
+                    <span class="badge bg-success">Activa</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Inactiva</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('promociones.editar', id=p.id) }}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>
+                    <button type="button" class="btn btn-sm btn-outline-{{ 'danger' if p.activo else 'success' }}" data-bs-toggle="modal" data-bs-target="#modalDelete" data-url="{{ url_for('promociones.eliminar', id=p.id) }}" data-name="{{ p.nombre }}">
+                        {{ 'Desactivar' if p.activo else 'Activar' }}
+                    </button>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="text-muted text-center">No hay promociones registradas</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

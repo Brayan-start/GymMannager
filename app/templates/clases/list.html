@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Clases{% endblock %}
+{% block content %}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle"></i> <strong>Gestión de Clases</strong><br>
+    Aquí puedes crear y gestionar las clases del gimnasio. Cada clase tiene un horario, instructor y cupo máximo.
+    Los instructores pueden registrar asistencia desde el botón <i class="bi bi-check-circle"></i> Check-in.
+</div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-calendar-event"></i> Clases</h4>
+    {% if current_user.is_admin() %}
+    <a href="{{ url_for('clases.nuevo') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nueva Clase</a>
+    {% endif %}
+</div>
+<div class="row">
+    {% for c in clases %}
+    <div class="col-md-6 col-lg-4 mb-3">
+        <div class="card shadow h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ c.nombre }}</h5>
+                <span class="badge bg-info">{{ c.categoria or 'General' }}</span>
+                <hr>
+                <p class="mb-1"><i class="bi bi-person-badge"></i> {{ c.instructor.nombre_completo if c.instructor else 'Sin instructor' }}</p>
+                <p class="mb-1"><i class="bi bi-people"></i> Cupo: {{ c.cupo_maximo }}</p>
+                {% if c.horarios.count() > 0 %}
+                <p class="mb-1"><i class="bi bi-clock"></i> Horarios:</p>
+                <ul class="list-unstyled ms-3">
+                    {% for h in c.horarios %}
+                    <li><small>{{ h.dia_semana|capitalize }} {{ h.hora_inicio.strftime('%H:%M') }} - {{ h.hora_fin.strftime('%H:%M') }}</small></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-transparent">
+                <a href="{{ url_for('clases.checkin', clase_id=c.id) }}" class="btn btn-sm btn-success"><i class="bi bi-check-circle"></i> Check-in</a>
+                {% if current_user.is_admin() %}
+                <a href="{{ url_for('clases.editar', id=c.id) }}" class="btn btn-sm btn-outline-warning">Editar</a>
+                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalDelete" data-url="{{ url_for('clases.eliminar', id=c.id) }}" data-name="{{ c.nombre }}">Desactivar</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12"><p class="text-muted text-center">No hay clases activas</p></div>
+    {% endfor %}
+</div>
+{% endblock %}

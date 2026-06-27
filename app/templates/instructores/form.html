@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if instructor else 'Nuevo' }} Instructor{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white"><h4 class="mb-0"><i class="bi bi-person-badge"></i> {{ 'Editar' if instructor else 'Nuevo' }} Instructor</h4></div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nombre *</label>
+                            <input type="text" name="nombre" class="form-control" value="{{ instructor.nombre if instructor else '' }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Apellido *</label>
+                            <input type="text" name="apellido" class="form-control" value="{{ instructor.apellido if instructor else '' }}" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" name="telefono" class="form-control" value="{{ instructor.telefono if instructor else '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ instructor.email if instructor else '' }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Especialidad</label>
+                        <input type="text" name="especialidad" class="form-control" value="{{ instructor.especialidad if instructor else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-cash-coin text-success"></i> Tarifa por clase (Bs.)</label>
+                        <input type="number" name="tarifa_por_clase" class="form-control" step="0.01" min="0" value="{{ '%.2f'|format(instructor.tarifa_por_clase) if instructor else '50.00' }}">
+                        <small class="text-muted">Monto que recibe el instructor por cada clase dictada.</small>
+                    </div>
+                    {% if not instructor %}
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="crear_usuario" name="crear_usuario">
+                        <label class="form-check-label" for="crear_usuario">Crear usuario para acceso al sistema</label>
+                    </div>
+                    <div id="usuario-fields" style="display:none">
+                        <div class="mb-3">
+                            <label class="form-label">Usuario</label>
+                            <input type="text" name="username" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contraseña</label>
+                            <input type="password" name="password" class="form-control">
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('instructores.listar') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Cancelar</a>
+                        <button type="submit" class="btn btn-dark"><i class="bi bi-check-lg"></i> {{ 'Actualizar' if instructor else 'Guardar' }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('crear_usuario')?.addEventListener('change', function() {
+    document.getElementById('usuario-fields').style.display = this.checked ? 'block' : 'none';
+});
+</script>
+{% endblock %}

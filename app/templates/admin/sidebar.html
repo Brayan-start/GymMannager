@@ -1,0 +1,52 @@
+<ul class="nav flex-column components">
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint == 'admin.dashboard' }}" href="{{ url_for('admin.dashboard') }}">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('miembros') }}" href="{{ url_for('miembros.listar') }}">
+            <i class="bi bi-people"></i> Miembros
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('membresias') }}" href="{{ url_for('membresias.listar') }}">
+            <i class="bi bi-credit-card"></i> Membresías
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('clases') }}" href="{{ url_for('clases.listar') }}">
+            <i class="bi bi-calendar-event"></i> Clases
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('instructores') }}" href="{{ url_for('instructores.listar') }}">
+            <i class="bi bi-person-badge"></i> Instructores
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('asistencia') }}" href="{{ url_for('asistencia.listar') }}">
+            <i class="bi bi-clipboard-check"></i> Asistencia Miembros
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('instructor') }}" href="{{ url_for('instructor.asistencia') }}">
+            <i class="bi bi-journal-check"></i> Asistencia Instructores
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('pagos') }}" href="{{ url_for('pagos.listar') }}">
+            <i class="bi bi-cash-coin"></i> Pagos
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint and request.endpoint.startswith('promociones') }}" href="{{ url_for('promociones.listar') }}">
+            <i class="bi bi-tags"></i> Promociones
+        </a>
+    </li>
+    <li class="nav-item mt-2">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint == 'admin.configurar_qr' }}" href="{{ url_for('admin.configurar_qr') }}">
+            <i class="bi bi-gear"></i> Configuración
+        </a>
+    </li>
+</ul>

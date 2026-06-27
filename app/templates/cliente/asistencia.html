@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Mi Asistencia{% endblock %}
+{% block content %}
+<h4 class="mb-4"><i class="bi bi-check-circle"></i> Mi Asistencia</h4>
+
+<div class="card shadow">
+    <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="bi bi-clock-history"></i> Historial de Asistencia</h5></div>
+    <div class="card-body p-0">
+        <table class="table table-hover table-striped mb-0">
+            <thead class="table-light"><tr><th>Fecha</th><th>Clase</th><th>Hora</th><th>Estado</th></tr></thead>
+            <tbody>
+                {% for a in asistencias %}
+                <tr>
+                    <td>{{ a.fecha.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ a.clase.nombre if a.clase else 'Libre' }}</td>
+                    <td>{{ a.hora_checkin.strftime('%H:%M') if a.hora_checkin else '-' }}</td>
+                    <td><span class="badge bg-{{ 'success' if a.asistio else 'danger' }}">{{ 'Asistió' if a.asistio else 'Falta' }}</span></td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" class="text-muted text-center py-4">Sin asistencias registradas</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

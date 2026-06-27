@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GymManager - {% block title %}Panel{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    <div class="wrapper">
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <nav id="sidebar">
+            <div class="sidebar-header d-flex align-items-center gap-2">
+                <i class="bi bi-dumbbell text-success logo-icon"></i>
+                <div>
+                    <div class="brand-name fw-bold">GymManager</div>
+                    <small class="text-muted">{{ current_user.rol.nombre|capitalize }}</small>
+                </div>
+            </div>
+
+            {% if current_user.is_admin() %}
+            {% include "admin/sidebar.html" %}
+            {% elif current_user.is_instructor() %}
+            {% include "instructor/sidebar.html" %}
+            {% elif current_user.is_cliente() %}
+            {% include "cliente/sidebar.html" %}
+            {% endif %}
+
+            <div class="sidebar-footer text-muted">
+                <i class="bi bi-person-circle"></i> {{ current_user.username }}<br>
+                <a href="{{ url_for('auth.logout') }}" class="text-danger small"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
+            </div>
+        </nav>
+
+        <div id="content">
+            <nav class="navbar navbar-expand navbar-dark navbar-gym px-3">
+                <div class="container-fluid">
+                    <button class="btn-sidebar-toggle" id="sidebarToggle" type="button">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <a class="navbar-brand ms-2" href="{{ url_for('auth.redirect_by_role') }}">
+                        <i class="bi bi-dumbbell text-success"></i> <strong>Gym</strong><span class="text-success">Manager</span>
+                    </a>
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle fs-5 me-1"></i>
+                                <span>{{ current_user.username }}</span>
+                                <span class="badge bg-success ms-2">{{ current_user.rol.nombre|capitalize }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ url_for('auth.redirect_by_role') }}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="main-content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                {% set icon = {'success':'check-circle-fill','danger':'exclamation-triangle-fill','warning':'exclamation-circle-fill','info':'info-circle-fill'} %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm d-flex align-items-center">
+                    <i class="bi bi-{{ icon.get(category, 'info-circle') }} fs-5 me-2"></i>
+                    <div>{{ message }}</div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+
+                <footer class="mt-4 pt-3 pb-2 text-center text-muted small">
+                    <i class="bi bi-dumbbell text-success"></i> <strong>GymManager</strong> &copy; 2026
+                </footer>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="container-fluid p-0">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        {% set icon = {'success':'check-circle-fill','danger':'exclamation-triangle-fill','warning':'exclamation-circle-fill','info':'info-circle-fill'} %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm d-flex align-items-center">
+            <i class="bi bi-{{ icon.get(category, 'info-circle') }} fs-5 me-2"></i>
+            <div>{{ message }}</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        {% block public_content %}{% endblock %}
+    </div>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <div class="modal fade" id="modalDelete" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Confirmar</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="deleteModalMessage">¿Estás seguro de eliminar esto?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <a href="#" id="deleteModalBtn" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

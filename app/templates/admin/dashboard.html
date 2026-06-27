@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Admin{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-speedometer2"></i> Panel de Administración</h4>
+    <span class="text-muted"><i class="bi bi-calendar3"></i> <span id="fecha-actual"></span></span>
+</div>
+
+{% if pagos_pendientes > 0 %}
+<div class="alert alert-warning d-flex justify-content-between align-items-center shadow-sm mb-4" role="alert">
+    <div>
+        <i class="bi bi-exclamation-triangle-fill fs-5 me-2"></i>
+        <strong>Tienes {{ pagos_pendientes }} comprobante{{ 's' if pagos_pendientes != 1 }} por verificar</strong>
+    </div>
+    <a href="{{ url_for('pagos.pendientes') }}" class="btn btn-warning btn-sm"><i class="bi bi-eye"></i> Ver Pendientes</a>
+</div>
+{% endif %}
+
+<div class="row mb-3">
+    <div class="col-md-3 mb-2">
+        <a href="{{ url_for('miembros.nuevo') }}" class="btn btn-primary w-100 py-3 shadow-sm">
+            <i class="bi bi-person-plus fs-4 d-block mb-1"></i>
+            <strong>Nuevo Miembro</strong>
+        </a>
+    </div>
+    <div class="col-md-3 mb-2">
+        <a href="{{ url_for('miembros.listar') }}" class="btn btn-dark w-100 py-3 shadow-sm">
+            <i class="bi bi-credit-card fs-4 d-block mb-1"></i>
+            <strong>Asignar Membresía</strong>
+        </a>
+    </div>
+    <div class="col-md-3 mb-2">
+        <a href="{{ url_for('pagos.nuevo') }}" class="btn btn-success w-100 py-3 shadow-sm">
+            <i class="bi bi-cash-coin fs-4 d-block mb-1"></i>
+            <strong>Registrar Pago</strong>
+        </a>
+    </div>
+    <div class="col-md-3 mb-2">
+        <a href="{{ url_for('asistencia.listar') }}" class="btn btn-info text-white w-100 py-3 shadow-sm">
+            <i class="bi bi-clipboard-check fs-4 d-block mb-1"></i>
+            <strong>Asistencia Hoy</strong>
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card shadow h-100 card-border-top-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="card-text text-muted mb-1"><i class="bi bi-people-fill"></i> Miembros Activos</p>
+                        <h2 class="mb-0 text-primary">{{ miembros_activos }}</h2>
+                        <small class="text-muted">{{ total_miembros }} total</small>
+                    </div>
+                    <div>
+                        <i class="bi bi-people-fill fs-1 text-primary opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card shadow h-100 card-border-top-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="card-text text-muted mb-1"><i class="bi bi-cash-stack"></i> Ingresos del Mes</p>
+                        <h2 class="mb-0 text-success">{{ "%.0f"|format(ingresos_mes) }} Bs.</h2>
+                        <small class="text-muted">Semana: {{ "%.0f"|format(ingresos_semana) }} Bs.</small>
+                    </div>
+                    <div>
+                        <i class="bi bi-cash-stack fs-1 text-success opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card shadow h-100 card-border-top-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="card-text text-muted mb-1"><i class="bi bi-clipboard-data"></i> Asistencia Hoy</p>
+                        <h2 class="mb-0 text-info">{{ asistencia_hoy }}</h2>
+                        <small class="text-muted">{{ asistencia_semana }} esta semana</small>
+                    </div>
+                    <div>
+                        <i class="bi bi-clipboard-data fs-1 text-info opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card shadow h-100 card-border-top-danger">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="card-text text-muted mb-1"><i class="bi bi-exclamation-triangle-fill"></i> Vencidas</p>
+                        <h2 class="mb-0 text-danger">{{ membresias_vencidas }}</h2>
+                        <small class="text-muted">{{ miembros_vencidos }} miembros</small>
+                    </div>
+                    <div>
+                        <i class="bi bi-exclamation-triangle-fill fs-1 text-danger opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header bg-white text-dark border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-graph-up text-primary"></i> Ingresos del Mes</h5>
+                <span class="badge bg-success fs-6">{{ "%.0f"|format(ingresos_mes) }} Bs.</span>
+            </div>
+            <div class="card-body">
+                <canvas id="chart-ingresos" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header bg-white text-dark border-bottom"><h5 class="mb-0"><i class="bi bi-trophy text-warning"></i> Clases Más Populares</h5></div>
+            <div class="card-body">
+                {% if top_clases %}
+                {% for c in top_clases %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span><i class="bi bi-dot text-success"></i> {{ c.nombre }}</span>
+                    <span class="badge bg-dark rounded-pill">{{ c.total }}</span>
+                </div>
+                <div class="progress mb-3" style="height: 6px;">
+                    <div class="progress-bar bg-success" style="width: {{ (c.total / top_clases[0].total * 100) if top_clases and top_clases[0].total > 0 else 0 }}%"></div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted text-center my-4">Sin datos este mes</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-5 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header bg-white text-dark border-bottom"><h5 class="mb-0"><i class="bi bi-pie-chart text-success"></i> Distribución de Miembros</h5></div>
+            <div class="card-body">
+                <canvas id="chart-miembros" height="200"></canvas>
+                <div class="row text-center mt-3 g-2">
+                    <div class="col-4">
+                        <div class="border rounded p-2 bg-light">
+                            <h5 class="text-success mb-0">{{ miembros_activos }}</h5>
+                            <small class="text-muted">Activos</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border rounded p-2 bg-light">
+                            <h5 class="text-warning mb-0">{{ miembros_vencidos }}</h5>
+                            <small class="text-muted">Vencidos</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border rounded p-2 bg-light">
+                            <h5 class="text-secondary mb-0">{{ miembros_inactivos }}</h5>
+                            <small class="text-muted">Inactivos</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header bg-white text-dark border-bottom"><h5 class="mb-0"><i class="bi bi-info-circle text-primary"></i> Resumen General</h5></div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="border rounded p-3 bg-light">
+                            <small class="text-muted d-block">Clases Activas</small>
+                            <strong class="fs-5">{{ clases_activas }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-3 bg-light">
+                            <small class="text-muted d-block">Instructores</small>
+                            <strong class="fs-5">{{ instructores_activos }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-3 bg-light">
+                            <small class="text-muted d-block"><i class="bi bi-cash-coin text-success"></i> Pago Instructores</small>
+                            <strong class="fs-5 text-success">{{ "%.0f"|format(pago_instructores) }} Bs.</strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-3 bg-light">
+                            <small class="text-muted d-block">Tipos Membresía</small>
+                            <strong class="fs-5">{{ tipos_membresia|length }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-3 bg-light">
+                            <small class="text-muted d-block">Total Miembros</small>
+                            <strong class="fs-5">{{ total_miembros }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('fecha-actual').textContent = new Date().toLocaleDateString('es-ES', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+{% if chart_labels %}
+new Chart(document.getElementById('chart-ingresos'), {
+    type: 'line',
+    data: {
+        labels: {{ chart_labels|tojson }},
+        datasets: [{
+            label: 'Ingresos (Bs.)',
+            data: {{ chart_data|tojson }},
+            borderColor: '#198754',
+            backgroundColor: 'rgba(25,135,84,0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: .4,
+            pointBackgroundColor: '#198754',
+            pointRadius: 4
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.05)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+{% endif %}
+
+new Chart(document.getElementById('chart-miembros'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Activos', 'Vencidos', 'Inactivos'],
+        datasets: [{
+            data: [{{ miembros_activos }}, {{ miembros_vencidos }}, {{ miembros_inactivos }}],
+            backgroundColor: ['#198754', '#ffc107', '#6c757d'],
+            borderWidth: 3,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        cutout: '65%',
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: { padding: 15, usePointStyle: true }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

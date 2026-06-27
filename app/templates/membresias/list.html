@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Tipos de Membresía{% endblock %}
+{% block content %}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle"></i> <strong>Membresías y Planes</strong><br>
+    Define los planes disponibles para los miembros. Al crear una membresía, se genera automáticamente el pago correspondiente.
+    Los precios están en Bolivianos (Bs.).
+</div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-card-checklist"></i> Planes de Membresía</h4>
+    <a href="{{ url_for('membresias.nuevo_tipo') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nuevo Plan</a>
+</div>
+<div class="row">
+    {% for t in tipos %}
+    <div class="col-md-3 mb-3">
+        <div class="card shadow h-100 text-center {{ 'border-success' if t.activo else 'border-secondary' }}">
+            <div class="card-body">
+                <i class="bi bi-trophy fs-1 text-success"></i>
+                <h5 class="card-title mt-2">{{ t.nombre }}</h5>
+                <h2 class="text-success fw-bold">{{ "%.0f"|format(t.precio) }} Bs.</h2>
+                <p class="text-muted">{{ t.duracion_dias }} días</p>
+                <p class="card-text small">{{ t.descripcion or 'Acceso completo al gimnasio' }}</p>
+                <span class="badge bg-{{ 'success' if t.activo else 'secondary' }}">{{ 'Activo' if t.activo else 'Inactivo' }}</span>
+            </div>
+            <div class="card-footer bg-transparent">
+                <a href="{{ url_for('membresias.editar_tipo', id=t.id) }}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i> Editar</a>
+                <button type="button" class="btn btn-sm btn-outline-{{ 'danger' if t.activo else 'success' }}" data-bs-toggle="modal" data-bs-target="#modalDelete" data-url="{{ url_for('membresias.eliminar_tipo', id=t.id) }}" data-name="{{ t.nombre }}">
+                    {{ 'Desactivar' if t.activo else 'Activar' }}
+                </button>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12"><p class="text-muted text-center">No hay planes de membresía. <a href="{{ url_for('membresias.nuevo_tipo') }}">Crea el primero</a></p></div>
+    {% endfor %}
+</div>
+{% endblock %}

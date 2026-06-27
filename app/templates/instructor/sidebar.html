@@ -1,0 +1,22 @@
+<ul class="nav flex-column components">
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint == 'instructor.dashboard' }}" href="{{ url_for('instructor.dashboard') }}">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint == 'instructor.asistencia' }}" href="{{ url_for('instructor.asistencia') }}">
+            <i class="bi bi-clipboard-check"></i> Registrar Asistencia
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint == 'instructor.clases' }}" href="{{ url_for('instructor.clases') }}">
+            <i class="bi bi-calendar-event"></i> Mis Clases
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint == 'instructor.horario' }}" href="{{ url_for('instructor.horario') }}">
+            <i class="bi bi-clock-history"></i> Mi Horario
+        </a>
+    </li>
+</ul>

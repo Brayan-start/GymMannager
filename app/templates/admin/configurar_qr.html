@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Configurar QR{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow card-border-top-success">
+            <div class="card-header bg-white">
+                <h4 class="mb-0"><i class="bi bi-qr-code text-success"></i> Código QR del Gimnasio</h4>
+            </div>
+            <div class="card-body text-center">
+                <p class="text-muted">Este código QR se mostrará a los clientes al momento de pagar con QR.</p>
+
+                {% if qr_exists %}
+                <div class="mb-4">
+                    <img src="{{ url_for('static', filename='img/qr_gymmanager.png') }}" class="img-fluid rounded shadow" style="max-width:250px;" alt="QR del gimnasio">
+                    <p class="mt-2 text-success small"><i class="bi bi-check-circle"></i> QR configurado actualmente</p>
+                </div>
+                {% else %}
+                <div class="mb-4 p-4 bg-light rounded">
+                    <i class="bi bi-qr-code fs-1 text-muted d-block mb-2"></i>
+                    <p class="text-muted">No hay QR configurado. Sube una imagen para que los clientes puedan escanear y pagar.</p>
+                </div>
+                {% endif %}
+
+                <hr>
+                <h5 class="mb-3">Actualizar QR</h5>
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Selecciona una imagen PNG <small class="text-muted">(recomendado: 300x300px)</small></label>
+                        <input type="file" name="qr_image" class="form-control" accept=".png,.jpg,.jpeg" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100"><i class="bi bi-upload"></i> Subir QR</button>
+                </form>
+
+                <div class="mt-3">
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary w-100"><i class="bi bi-arrow-left"></i> Volver al Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

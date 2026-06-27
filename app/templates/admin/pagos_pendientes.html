@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Pagos Pendientes{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-clock-history text-warning"></i> Pagos Pendientes de Verificación</h4>
+    <span class="badge bg-warning text-dark fs-6">{{ pagos|length }} pendiente{{ 's' if pagos|length != 1 }}</span>
+</div>
+
+{% if pagos %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr><th>#</th><th>Fecha</th><th>Miembro</th><th>Plan</th><th>Monto</th><th>Comprobante</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+            {% for p in pagos %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.fecha_pago.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td><strong>{{ p.miembro.nombre_completo }}</strong></td>
+                <td>{{ p.tipo_membresia.nombre if p.tipo_membresia else '—' }}</td>
+                <td><strong class="text-success">{{ "%.2f"|format(p.monto) }} Bs.</strong></td>
+                <td>
+                    {% if p.comprobante_url %}
+                    <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalComprobante{{ p.id }}">
+                        <i class="bi bi-eye"></i> Ver
+                    </button>
+                    {% else %}
+                    <span class="text-muted">Sin comprobante</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modalAprobar{{ p.id }}">
+                        <i class="bi bi-check-lg"></i> Aprobar
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalRechazar{{ p.id }}">
+                        <i class="bi bi-x-lg"></i> Rechazar
+                    </button>
+                </td>
+            </tr>
+
+            {% if p.comprobante_url %}
+            <div class="modal fade" id="modalComprobante{{ p.id }}" tabindex="-1">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-dark text-white">
+                            <h5 class="modal-title"><i class="bi bi-file-earmark-image"></i> Comprobante - {{ p.miembro.nombre_completo }}</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-center p-4">
+                            {% if p.comprobante_url.endswith('.pdf') %}
+                            <iframe src="{{ url_for('static', filename=p.comprobante_url) }}" style="width:100%;height:500px;border:none;"></iframe>
+                            {% else %}
+                            <img src="{{ url_for('static', filename=p.comprobante_url) }}" class="img-fluid rounded shadow" style="max-height:500px;">
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="modal fade" id="modalAprobar{{ p.id }}" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title"><i class="bi bi-check-circle"></i> Confirmar Aprobación</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-center py-4">
+                            <i class="bi bi-question-circle fs-1 text-success mb-3 d-block"></i>
+                            <h5>¿Aprobar pago de <strong>{{ "%.2f"|format(p.monto) }} Bs.</strong> de <strong>{{ p.miembro.nombre_completo }}</strong>?</h5>
+                            <p class="text-muted mt-2">Su membresía se activará automáticamente.</p>
+                        </div>
+                        <div class="modal-footer justify-content-center">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <form method="POST" action="{{ url_for('pagos.aprobar', id=p.id) }}">
+                                <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Sí, Aprobar Pago</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="modalRechazar{{ p.id }}" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title"><i class="bi bi-x-circle"></i> Rechazar Pago</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form method="POST" action="{{ url_for('pagos.rechazar', id=p.id) }}">
+                            <div class="modal-body">
+                                <p><strong>{{ p.miembro.nombre_completo }}</strong> - {{ "%.2f"|format(p.monto) }} Bs.</p>
+                                <div class="mb-3">
+                                    <label class="form-label">Motivo del rechazo *</label>
+                                    <textarea name="motivo_rechazo" class="form-control" rows="3" required placeholder="Ej: El comprobante no es legible, monto incorrecto, etc."></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-danger"><i class="bi bi-x-lg"></i> Rechazar Pago</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card shadow">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-check-all fs-1 text-success d-block mb-3"></i>
+        <h5 class="text-muted">No hay pagos pendientes de verificación</h5>
+        <p class="text-muted">Todos los comprobantes han sido revisados.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

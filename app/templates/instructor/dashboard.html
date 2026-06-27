@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Instructor{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-person-badge"></i> Panel del Instructor</h4>
+    <span class="text-muted"><i class="bi bi-calendar3"></i> {{ now.strftime('%d/%m/%Y') }}</span>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-4 mb-2">
+        <a href="{{ url_for('asistencia.listar') }}" class="btn btn-primary w-100 py-3 shadow-sm">
+            <i class="bi bi-clipboard-check fs-4 d-block mb-1"></i>
+            <strong>Registrar Asistencia</strong>
+        </a>
+    </div>
+    <div class="col-md-4 mb-2">
+        <a href="{{ url_for('clases.listar') }}" class="btn btn-dark w-100 py-3 shadow-sm">
+            <i class="bi bi-calendar-event fs-4 d-block mb-1"></i>
+            <strong>Ver mis Clases</strong>
+        </a>
+    </div>
+    <div class="col-md-4 mb-2">
+        <a href="{{ url_for('asistencia.checkin_directo') }}" class="btn btn-success w-100 py-3 shadow-sm">
+            <i class="bi bi-check-circle fs-4 d-block mb-1"></i>
+            <strong>Check-in Rápido</strong>
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card bg-dark text-white shadow h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><h6 class="card-title">Clases Hoy</h6><h2 class="mb-0">{{ total_clases }}</h2></div>
+                    <i class="bi bi-calendar-event fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card bg-success text-dark shadow h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><h6 class="card-title">Asistencia Hoy</h6><h2 class="mb-0">{{ asistencias_hoy }}</h2></div>
+                    <i class="bi bi-clipboard-check fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card bg-success text-white shadow h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><h6 class="card-title">Semana</h6><h2 class="mb-0">{{ asistencias_semana }}</h2></div>
+                    <i class="bi bi-graph-up fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card bg-info text-white shadow h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div><h6 class="card-title">Miembros Activos</h6><h2 class="mb-0">{{ miembros_activos }}</h2></div>
+                    <i class="bi bi-people fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="bi bi-calendar-event"></i> Clases de Hoy ({{ hoy_label|capitalize }})</h5></div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for c in clases %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ c.nombre }}</strong>
+                            <br><small class="text-muted">
+                                {% if c.horarios.count() > 0 %}
+                                {% for h in c.horarios %}{% if h.dia_semana == hoy_label %}{{ h.hora_inicio.strftime('%H:%M') }} - {{ h.hora_fin.strftime('%H:%M') }}{% endif %}{% endfor %}
+                                {% else %}Sin horario{% endif %}
+                            </small>
+                        </div>
+                        <a href="{{ url_for('clases.checkin', clase_id=c.id) }}" class="btn btn-sm btn-primary"><i class="bi bi-check-circle"></i> Check-in</a>
+                    </div>
+                    {% else %}
+                    <div class="list-group-item text-muted text-center py-4">
+                        <i class="bi bi-calendar-x fs-3 d-block mb-2"></i>
+                        No hay clases programadas para hoy ({{ hoy_label|capitalize }})
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="bi bi-bar-chart"></i> Asistencia por Clase (Semana)</h5></div>
+            <div class="card-body">
+                <canvas id="chart-asistencia-clases" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const ctx = document.getElementById('chart-asistencia-clases');
+if (ctx) {
+    new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: [{% for c in asistencias_por_clase %}'{{ c[0] }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Asistencias',
+                data: [{% for c in asistencias_por_clase %}{{ c[1] }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: ['#198754', '#ffc107', '#0d6efd', '#dc3545', '#6f42c1', '#fd7e14'],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+}
+</script>
+{% endblock %}

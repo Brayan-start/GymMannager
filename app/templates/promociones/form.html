@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if promo else 'Nueva' }} Promoción{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white"><h4 class="mb-0">{{ 'Editar' if promo else 'Nueva' }} Promoción</h4></div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre *</label>
+                        <input type="text" name="nombre" class="form-control" value="{{ promo.nombre if promo else '' }}" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tipo *</label>
+                            <select name="tipo" class="form-select" required>
+                                {% for val, label in tipos_promo %}
+                                <option value="{{ val }}" {{ 'selected' if promo and promo.tipo==val }}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Valor *</label>
+                            <input type="number" step="0.01" name="valor" class="form-control" value="{{ promo.valor if promo else '' }}" required>
+                            <small class="text-muted">% o Bs. según tipo</small>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Aplica a membresía</label>
+                        <select name="tipo_membresia_id" class="form-select">
+                            <option value="">Todas las membresías</option>
+                            {% for t in tipos %}
+                            <option value="{{ t.id }}" {{ 'selected' if promo and promo.tipo_membresia_id==t.id }}>{{ t.nombre }} - {{ "%.0f"|format(t.precio) }} Bs.</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fecha Inicio</label>
+                            <input type="date" name="fecha_inicio" class="form-control" value="{{ promo.fecha_inicio.strftime('%Y-%m-%d') if promo and promo.fecha_inicio else '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fecha Fin</label>
+                            <input type="date" name="fecha_fin" class="form-control" value="{{ promo.fecha_fin.strftime('%Y-%m-%d') if promo and promo.fecha_fin else '' }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="2">{{ promo.descripcion if promo else '' }}</textarea>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('promociones.listar') }}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">{{ 'Actualizar' if promo else 'Guardar' }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

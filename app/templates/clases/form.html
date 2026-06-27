@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if clase else 'Nueva' }} Clase{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <h4 class="mb-0">{{ 'Editar' if clase else 'Nueva' }} Clase</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nombre *</label>
+                            <input type="text" name="nombre" class="form-control" value="{{ clase.nombre if clase else '' }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Categoría</label>
+                            <select name="categoria" class="form-select">
+                                <option value="">Seleccionar...</option>
+                                <option value="Yoga" {{ 'selected' if clase and clase.categoria=='Yoga' }}>Yoga</option>
+                                <option value="CrossFit" {{ 'selected' if clase and clase.categoria=='CrossFit' }}>CrossFit</option>
+                                <option value="Spinning" {{ 'selected' if clase and clase.categoria=='Spinning' }}>Spinning</option>
+                                <option value="Zumba" {{ 'selected' if clase and clase.categoria=='Zumba' }}>Zumba</option>
+                                <option value="Funcional" {{ 'selected' if clase and clase.categoria=='Funcional' }}>Funcional</option>
+                                <option value="Musculación" {{ 'selected' if clase and clase.categoria=='Musculación' }}>Musculación</option>
+                                <option value="Pilates" {{ 'selected' if clase and clase.categoria=='Pilates' }}>Pilates</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="2">{{ clase.descripcion if clase else '' }}</textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Instructor</label>
+                            <select name="instructor_id" class="form-select">
+                                <option value="">Sin asignar</option>
+                                {% for i in instructores %}
+                                <option value="{{ i.id }}" {{ 'selected' if clase and clase.instructor_id==i.id }}>{{ i.nombre_completo }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Cupo Máximo</label>
+                            <input type="number" name="cupo_maximo" class="form-control" value="{{ clase.cupo_maximo if clase else '20' }}">
+                        </div>
+                    </div>
+                    <hr>
+                    <h5>Horarios</h5>
+                    <div id="horarios-container">
+                        {% if clase and clase.horarios.count() > 0 %}
+                        {% for h in clase.horarios %}
+                        <div class="row mb-2 horario-row">
+                            <div class="col-md-4">
+                                <select name="dia_semana[]" class="form-select">
+                                    {% for val, label in dias_semana %}
+                                    <option value="{{ val }}" {{ 'selected' if h.dia_semana==val }}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="hora_inicio[]" class="form-control" value="{{ h.hora_inicio.strftime('%H:%M') }}">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="hora_fin[]" class="form-control" value="{{ h.hora_fin.strftime('%H:%M') }}">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-outline-danger btn-remove-horario"><i class="bi bi-trash"></i></button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="row mb-2 horario-row">
+                            <div class="col-md-4">
+                                <select name="dia_semana[]" class="form-select">
+                                    {% for val, label in dias_semana %}
+                                    <option value="{{ val }}">{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="hora_inicio[]" class="form-control">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="hora_fin[]" class="form-control">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-outline-danger btn-remove-horario"><i class="bi bi-trash"></i></button>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <button type="button" class="btn btn-outline-secondary btn-sm mb-3" id="add-horario"><i class="bi bi-plus"></i> Agregar Horario</button>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('clases.listar') }}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-dark">{{ 'Actualizar' if clase else 'Guardar' }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('add-horario')?.addEventListener('click', function() {
+    const container = document.getElementById('horarios-container');
+    const first = container.querySelector('.horario-row');
+    const clone = first.cloneNode(true);
+    clone.querySelectorAll('select, input').forEach(el => el.value = '');
+    container.appendChild(clone);
+});
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.btn-remove-horario')) {
+        const rows = document.querySelectorAll('.horario-row');
+        if (rows.length > 1) e.target.closest('.horario-row').remove();
+    }
+});
+</script>
+{% endblock %}

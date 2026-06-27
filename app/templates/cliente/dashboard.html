@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Mi Panel{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-person-circle"></i> Mi Panel</h4>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card shadow h-100 card-border-top-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title text-muted"><i class="bi bi-card-checklist"></i> Mi Membresía</h6>
+                        {% if membresia %}
+                        <h4 class="mb-0 text-success">{{ membresia.tipo.nombre }}</h4>
+                        <small class="text-muted">Vence: {{ membresia.fecha_fin.strftime('%d/%m/%Y') }}</small>
+                        {% else %}
+                        <h4 class="mb-0">Sin membresía</h4>
+                        <a href="{{ url_for('membresias.public_listar') }}" class="text-success small">Ver planes</a>
+                        {% endif %}
+                    </div>
+                    <i class="bi bi-card-checklist fs-1 text-success opacity-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card shadow h-100 card-border-top-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title text-muted"><i class="bi bi-clipboard-check"></i> Asistencias del Mes</h6>
+                        <h2 class="mb-0 text-primary">{{ asistencias_mes }}</h2>
+                    </div>
+                    <i class="bi bi-clipboard-check fs-1 text-primary opacity-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card shadow h-100 card-border-top-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title text-muted"><i class="bi bi-person-check"></i> Mi Estado</h6>
+                        {% if miembro %}
+                        <h4 class="mb-0 text-info">{{ miembro.estado|capitalize }}</h4>
+                        {% else %}
+                        <h4 class="mb-0">—</h4>
+                        {% endif %}
+                    </div>
+                    <i class="bi bi-person-check fs-1 text-info opacity-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4" id="asistencias">
+        <div class="card shadow h-100">
+            <div class="card-header bg-white text-dark border-bottom"><h5 class="mb-0"><i class="bi bi-clock-history text-primary"></i> Últimas Asistencias</h5></div>
+            <div class="card-body p-0">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-light"><tr><th>Fecha</th><th>Clase</th><th>Hora</th></tr></thead>
+                    <tbody>
+                        {% for a in asistencias %}
+                        <tr>
+                            <td>{{ a.fecha.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ a.clase.nombre if a.clase else 'Libre' }}</td>
+                            <td>{{ a.hora_checkin.strftime('%H:%M') if a.hora_checkin else '-' }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="3" class="text-muted text-center py-3">Sin asistencias registradas</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4" id="pagos">
+        <div class="card shadow h-100">
+            <div class="card-header bg-white text-dark border-bottom"><h5 class="mb-0"><i class="bi bi-cash-coin text-success"></i> Últimos Pagos</h5></div>
+            <div class="card-body p-0">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-light"><tr><th>Fecha</th><th>Concepto</th><th>Monto</th><th>Estado</th></tr></thead>
+                    <tbody>
+                        {% for p in pagos %}
+                        <tr>
+                            <td>{{ p.fecha_pago.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ p.tipo_membresia.nombre if p.tipo_membresia else 'Pago' }}</td>
+                            <td><strong>{{ "%.2f"|format(p.monto) }} Bs.</strong></td>
+                            <td><span class="badge bg-success">{{ p.estado }}</span></td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="4" class="text-muted text-center py-3">Sin pagos registrados</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow" id="clases">
+    <div class="card-header bg-white text-dark border-bottom"><h5 class="mb-0"><i class="bi bi-calendar-event text-warning"></i> Clases Disponibles</h5></div>
+    <div class="card-body">
+        <div class="row">
+            {% for c in clases %}
+            <div class="col-md-4 col-lg-3 mb-2">
+                <div class="border rounded p-2 text-center bg-light">
+                    <strong>{{ c.nombre }}</strong>
+                    <br><small class="text-muted">{{ c.categoria or 'General' }}</small>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12 text-muted">No hay clases disponibles</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

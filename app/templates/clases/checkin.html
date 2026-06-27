@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Check-in: {{ clase.nombre }}{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow mb-3">
+            <div class="card-header bg-dark text-white"><h5 class="mb-0">Registrar Check-in - {{ clase.nombre }}</h5></div>
+            <div class="card-body">
+                <form method="POST" class="row g-2">
+                    <div class="col-8">
+                        <select name="miembro_id" class="form-select" required>
+                            <option value="">Seleccionar miembro...</option>
+                            {% for m in miembros %}
+                            <option value="{{ m.id }}">{{ m.nombre_completo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <button type="submit" class="btn btn-success w-100"><i class="bi bi-check-circle"></i> Check-in</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white"><h5 class="mb-0">Asistentes Hoy</h5></div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead><tr><th>Miembro</th><th>Hora</th></tr></thead>
+                    <tbody>
+                        {% for a in asistencias %}
+                        <tr>
+                            <td>{{ a.miembro.nombre_completo }}</td>
+                            <td>{{ a.hora_checkin.strftime('%H:%M') }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="2" class="text-muted">Sin asistencias hoy</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p class="mb-0"><strong>Total: {{ asistencias|length }} / {{ clase.cupo_maximo }}</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

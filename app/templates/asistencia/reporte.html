@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Reporte de Asistencia{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="bi bi-graph-up"></i> Reporte de Asistencia</h2>
+</div>
+<form class="row g-2 mb-3">
+    <div class="col-auto">
+        <label class="form-label">Desde</label>
+        <input type="date" name="desde" class="form-control" value="{{ desde.isoformat() }}">
+    </div>
+    <div class="col-auto">
+        <label class="form-label">Hasta</label>
+        <input type="date" name="hasta" class="form-control" value="{{ hasta.isoformat() }}">
+    </div>
+    <div class="col-auto d-flex align-items-end">
+        <button type="submit" class="btn btn-outline-dark"><i class="bi bi-search"></i> Generar</button>
+    </div>
+</form>
+<div class="row mb-3">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Asistencias</h5>
+                <h2>{{ total }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Miembros Únicos</h5>
+                <h2>{{ miembros_unicos }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">Promedio Diario</h5>
+                <h2>{{ (total / ((hasta - desde).days + 1))|round(1) if (hasta - desde).days >= 0 else 0 }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-dark">
+            <tr><th>Fecha</th><th>Miembro</th><th>Clase</th><th>Hora</th></tr>
+        </thead>
+        <tbody>
+            {% for a in asistencias %}
+            <tr>
+                <td>{{ a.fecha.strftime('%d/%m/%Y') }}</td>
+                <td>{{ a.miembro.nombre_completo }}</td>
+                <td>{{ a.clase.nombre if a.clase else 'Libre' }}</td>
+                <td>{{ a.hora_checkin.strftime('%H:%M') if a.hora_checkin else '-' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-muted">Sin datos en el período</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
