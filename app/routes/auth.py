@@ -45,11 +45,13 @@ def login():
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
-        if Usuario.query.filter_by(username=username).first():
-            flash('El usuario ya existe', 'danger')
+        if not email or not password:
+            flash('Correo y contraseña son obligatorios', 'danger')
+            return render_template('auth/register.html')
+        if Usuario.query.filter_by(email=email).first():
+            flash('El correo ya está registrado', 'danger')
             return render_template('auth/register.html')
         rol_cliente = Rol.query.filter_by(nombre='cliente').first()
         if not rol_cliente:
@@ -57,7 +59,7 @@ def register():
             db.session.add(rol_cliente)
             db.session.commit()
         user = Usuario(
-            username=username,
+            username=email,
             email=email,
             rol_id=rol_cliente.id,
             activo=True
@@ -69,7 +71,7 @@ def register():
         if rol_cliente.nombre == 'cliente':
             miembro = Miembro(
                 usuario_id=user.id,
-                nombre=username,
+                nombre=email.split('@')[0],
                 apellido='',
                 email=email,
                 estado='activo'

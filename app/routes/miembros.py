@@ -58,15 +58,15 @@ def nuevo():
 
         crear_usuario = request.form.get('crear_usuario') == 'on'
         if crear_usuario:
-            username = request.form.get('username', '').strip()
-            email = request.form.get('email_reg', '').strip()
             password = request.form.get('password', '')
-            if username and password:
-                if Usuario.query.filter_by(username=username).first():
-                    flash('El nombre de usuario ya existe', 'danger')
+            email = request.form.get('username', '').strip()
+            if email and password:
+                username = email
+                if Usuario.query.filter_by(email=email).first():
+                    flash('El correo electrónico ya está registrado', 'danger')
                     return render_template('miembros/form.html', miembro=None)
                 rol_cliente = Rol.query.filter_by(nombre='cliente').first()
-                user = Usuario(username=username, email=email or f'{username}@gymmanager.com', rol_id=rol_cliente.id, activo=True)
+                user = Usuario(username=username, email=email, rol_id=rol_cliente.id, activo=True)
                 user.set_password(password)
                 db.session.add(user)
                 db.session.flush()

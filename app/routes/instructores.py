@@ -36,13 +36,14 @@ def nuevo():
         )
         crear_usuario = request.form.get('crear_usuario') == 'on'
         if crear_usuario:
-            username = request.form.get('username')
             password = request.form.get('password')
-            if username and password:
+            email = request.form.get('username')
+            if email and password:
                 from sqlalchemy.exc import IntegrityError
-                email = request.form.get('email') or f'{username}@gymmanager.com'
+                username = email
                 if Usuario.query.filter_by(email=email).first():
-                    email = f'{username}@gymmanager.com'
+                    flash('El correo electrónico ya está registrado', 'danger')
+                    return render_template('instructores/form.html', instructor=None)
                 rol_instructor = Rol.query.filter_by(nombre='instructor').first()
                 if not rol_instructor:
                     rol_instructor = Rol(nombre='instructor')
@@ -56,7 +57,7 @@ def nuevo():
                     instructor.usuario_id = user.id
                 except IntegrityError:
                     db.session.rollback()
-                    flash('El nombre de usuario o email ya existe. Intenta con otro.', 'danger')
+                    flash('El correo electrónico ya existe. Intenta con otro.', 'danger')
                     return render_template('instructores/form.html', instructor=None)
         db.session.add(instructor)
         db.session.commit()
