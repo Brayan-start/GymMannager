@@ -79,19 +79,22 @@ def asistencia_clase(clase_id):
     clase = Clase.query.get_or_404(clase_id)
     hoy = bolivia_date()
     if request.method == 'POST':
-        miembro_ids = request.form.getlist('miembro_ids')
-        for mid in miembro_ids:
-            asistio = request.form.get(f'asistio_{mid}') == '1'
-            existe = Asistencia.query.filter_by(miembro_id=mid, clase_id=clase.id, fecha=hoy).first()
-            if asistio and not existe:
-                a = Asistencia(miembro_id=mid, clase_id=clase.id, fecha=hoy, hora_checkin=bolivia_time(), asistio=True)
+        miembro_id = request.form.get('miembro_id', type=int)
+        estado = request.form.get('estado')
+        if miembro_id and estado:
+            asistio = (estado == 'presente')
+            existe = Asistencia.query.filter_by(miembro_id=miembro_id, clase_id=clase.id, fecha=hoy).first()
+            if existe:
+                existe.asistio = asistio
+                existe.hora_checkin = bolivia_time()
+            else:
+                a = Asistencia(miembro_id=miembro_id, clase_id=clase.id, fecha=hoy, hora_checkin=bolivia_time(), asistio=asistio)
                 db.session.add(a)
-        db.session.commit()
-        flash('Asistencia guardada', 'success')
+            db.session.commit()
         return redirect(url_for('instructor.asistencia_clase', clase_id=clase.id))
     inscritos = InscripcionClase.query.filter_by(clase_id=clase.id).all()
     miembros = [i.miembro for i in inscritos]
-    asistencias_hoy = {a.miembro_id for a in Asistencia.query.filter_by(clase_id=clase.id, fecha=hoy, asistio=True).all()}
+    asistencias_hoy = {a.miembro_id: a for a in Asistencia.query.filter_by(clase_id=clase.id, fecha=hoy).all()}
     return render_template('instructor/asistencia.html', clase=clase, miembros=miembros, asistencias_hoy=asistencias_hoy, fecha=hoy, now=bolivia_now())
 
 @instructor_bp.route('/horario')

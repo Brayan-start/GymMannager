@@ -14,7 +14,15 @@
                     <td>{{ a.fecha.strftime('%d/%m/%Y') }}</td>
                     <td>{{ a.clase.nombre if a.clase else 'Libre' }}</td>
                     <td>{{ a.hora_checkin.strftime('%H:%M') if a.hora_checkin else '-' }}</td>
-                    <td><span class="badge bg-{{ 'success' if a.asistio else 'danger' }}">{{ 'Asistió' if a.asistio else 'Falta' }}</span></td>
+                    <td>
+                        {% if a.asistio is none %}
+                        <span class="badge bg-secondary">Sin registro</span>
+                        {% elif a.asistio %}
+                        <span class="badge bg-success">Asististe ✓</span>
+                        {% else %}
+                        <span class="badge bg-danger">No asististe</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% else %}
                 <tr><td colspan="4" class="text-muted text-center py-4">Sin asistencias registradas</td></tr>
