@@ -20,6 +20,9 @@
                 </small></p>
                 {% endif %}
             </div>
+            <div class="card-footer bg-transparent">
+                <a href="{{ url_for('instructor.asistencia_clase', clase_id=c.id) }}" class="btn btn-sm btn-success"><i class="bi bi-clipboard-check"></i> Ver asistencia</a>
+            </div>
         </div>
     </div>
     {% else %}

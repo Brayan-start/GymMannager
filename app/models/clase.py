@@ -15,6 +15,7 @@ class Clase(db.Model):
 
     horarios = db.relationship('Horario', backref='clase', lazy='dynamic', cascade='all, delete-orphan')
     asistencias = db.relationship('Asistencia', backref='clase', lazy='dynamic')
+    inscripciones = db.relationship('InscripcionClase', backref='clase', lazy='dynamic', cascade='all, delete-orphan')
 
     @property
     def asistentes_hoy(self):
@@ -28,3 +29,4 @@ class Clase(db.Model):
         return f'<Clase {self.nombre}>'
 
 from app.models.asistencia import Asistencia
+from app.models.inscripcion import InscripcionClase

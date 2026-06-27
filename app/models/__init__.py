@@ -10,3 +10,4 @@ from app.models.pago import Pago
 from app.models.asistencia import Asistencia
 from app.models.promocion import Promocion
 from app.models.asistencia_instructor import AsistenciaInstructor
+from app.models.inscripcion import InscripcionClase

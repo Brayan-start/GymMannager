@@ -1,52 +1,57 @@
 {% extends "base.html" %}
-{% block title %}Registrar Asistencia{% endblock %}
+{% block title %}Asistencia - {{ clase.nombre }}{% endblock %}
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="mb-0"><i class="bi bi-clipboard-check"></i> Registrar Asistencia</h4>
-    <span class="text-muted"><i class="bi bi-calendar3"></i> {{ now.strftime('%d/%m/%Y') }}</span>
+    <div>
+        <h4 class="mb-0"><i class="bi bi-clipboard-check"></i> Asistencia: {{ clase.nombre }}</h4>
+        <small class="text-muted"><i class="bi bi-calendar3"></i> {{ fecha.strftime('%d/%m/%Y') }}</small>
+    </div>
+    <a href="{{ url_for('instructor.clases') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
 </div>
 
-<div class="row">
-    <div class="col-md-8 mb-4">
-        <div class="card shadow">
-            <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="bi bi-people"></i> Asistencias del Día</h5></div>
-            <div class="card-body p-0">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light"><tr><th>Miembro</th><th>Clase</th><th>Hora</th></tr></thead>
-                    <tbody>
-                        {% for a in asistencias %}
-                        <tr>
-                            <td>{{ a.miembro.nombre_completo }}</td>
-                            <td>{{ a.clase.nombre if a.clase else 'Libre' }}</td>
-                            <td>{{ a.hora_checkin.strftime('%H:%M') if a.hora_checkin else '-' }}</td>
-                        </tr>
-                        {% else %}
-                        <tr><td colspan="3" class="text-muted text-center py-4">Sin asistencias registradas hoy</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+{% if miembros %}
+<form method="POST">
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-people"></i> Miembros inscritos ({{ miembros|length }})</h5>
+            <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-check-lg"></i> Guardar asistencia</button>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr><th>#</th><th>Miembro</th><th>Asistió</th></tr>
+                </thead>
+                <tbody>
+                    {% for m in miembros %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td><strong>{{ m.nombre_completo }}</strong></td>
+                        <td>
+                            <input type="hidden" name="miembro_ids" value="{{ m.id }}">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <input type="radio" class="btn-check" name="asistio_{{ m.id }}" id="presente_{{ m.id }}" value="1" autocomplete="off" {{ 'checked' if m.id in asistencias_hoy }}>
+                                <label class="btn btn-outline-success" for="presente_{{ m.id }}"><i class="bi bi-check-circle"></i> Presente</label>
+                                <input type="radio" class="btn-check" name="asistio_{{ m.id }}" id="ausente_{{ m.id }}" value="0" autocomplete="off" {{ 'checked' if m.id not in asistencias_hoy }}>
+                                <label class="btn btn-outline-danger" for="ausente_{{ m.id }}"><i class="bi bi-x-circle"></i> Ausente</label>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer text-end">
+            <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Guardar asistencia</button>
         </div>
     </div>
-    <div class="col-md-4 mb-4">
-        <div class="card shadow">
-            <div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="bi bi-list-check"></i> Mis Asistencias</h5></div>
-            <div class="card-body p-0">
-                <table class="table table-sm mb-0">
-                    <thead class="table-light"><tr><th>Fecha</th><th>Estado</th></tr></thead>
-                    <tbody>
-                        {% for a in mi_asistencia %}
-                        <tr>
-                            <td>{{ a.fecha.strftime('%d/%m/%Y') }}</td>
-                            <td><span class="badge bg-{{ 'success' if a.estado == 'presente' else 'warning' }}">{{ a.estado|capitalize }}</span></td>
-                        </tr>
-                        {% else %}
-                        <tr><td colspan="2" class="text-muted text-center py-3">Sin registros</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+</form>
+{% else %}
+<div class="card shadow">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-people fs-1 text-muted d-block mb-3"></i>
+        <h5 class="text-muted">No hay miembros inscritos en esta clase</h5>
+        <p class="text-muted">Los clientes deben inscribirse desde su panel para aparecer aquí.</p>
     </div>
 </div>
+{% endif %}
 {% endblock %}

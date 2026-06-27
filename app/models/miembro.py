@@ -20,6 +20,7 @@ class Miembro(db.Model):
     membresias = db.relationship('Membresia', backref='miembro', lazy='dynamic', order_by='Membresia.fecha_inicio.desc()')
     pagos = db.relationship('Pago', backref='miembro', lazy='dynamic', order_by='Pago.fecha_pago.desc()')
     asistencias = db.relationship('Asistencia', backref='miembro', lazy='dynamic')
+    inscripciones = db.relationship('InscripcionClase', backref='miembro', lazy='dynamic', cascade='all, delete-orphan')
 
     @property
     def nombre_completo(self):

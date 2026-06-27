@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app import db
 from app.models.clase import Clase
@@ -7,8 +7,9 @@ from app.models.miembro import Miembro
 from app.models.instructor import Instructor
 from app.models.horario import Horario
 from app.models.asistencia_instructor import AsistenciaInstructor
+from app.models.inscripcion import InscripcionClase
 from app.routes import instructor_required
-from app.utils import bolivia_now, bolivia_date, hoy_dia_semana
+from app.utils import bolivia_now, bolivia_date, bolivia_time, hoy_dia_semana
 from datetime import datetime, date, timedelta
 from sqlalchemy import func
 
@@ -79,9 +80,32 @@ def asistencia():
 def clases():
     hoy = bolivia_date()
     hoy_label = hoy_dia_semana()
+    instr = Instructor.query.filter_by(usuario_id=current_user.id).first()
     clases_hoy_ids = [h.clase_id for h in Horario.query.filter_by(dia_semana=hoy_label).all()]
     clases = Clase.query.filter(Clase.id.in_(clases_hoy_ids), Clase.activa == True).all() if clases_hoy_ids else []
-    return render_template('instructor/clases.html', clases=clases, hoy_label=hoy_label)
+    return render_template('instructor/clases.html', clases=clases, hoy_label=hoy_label, instr=instr)
+
+@instructor_bp.route('/clases/<int:clase_id>/asistencia', methods=['GET', 'POST'])
+@login_required
+@instructor_required
+def asistencia_clase(clase_id):
+    clase = Clase.query.get_or_404(clase_id)
+    hoy = bolivia_date()
+    if request.method == 'POST':
+        miembro_ids = request.form.getlist('miembro_ids')
+        for mid in miembro_ids:
+            asistio = request.form.get(f'asistio_{mid}') == '1'
+            existe = Asistencia.query.filter_by(miembro_id=mid, clase_id=clase.id, fecha=hoy).first()
+            if asistio and not existe:
+                a = Asistencia(miembro_id=mid, clase_id=clase.id, fecha=hoy, hora_checkin=bolivia_time(), asistio=True)
+                db.session.add(a)
+        db.session.commit()
+        flash('Asistencia guardada', 'success')
+        return redirect(url_for('instructor.asistencia_clase', clase_id=clase.id))
+    inscritos = InscripcionClase.query.filter_by(clase_id=clase.id).all()
+    miembros = [i.miembro for i in inscritos]
+    asistencias_hoy = {a.miembro_id for a in Asistencia.query.filter_by(clase_id=clase.id, fecha=hoy, asistio=True).all()}
+    return render_template('instructor/asistencia.html', clase=clase, miembros=miembros, asistencias_hoy=asistencias_hoy, fecha=hoy, now=bolivia_now())
 
 @instructor_bp.route('/horario')
 @login_required

@@ -10,6 +10,7 @@ from app.models.asistencia import Asistencia
 from app.models.clase import Clase
 from app.models.tipo_membresia import TipoMembresia
 from app.models.promocion import Promocion
+from app.models.inscripcion import InscripcionClase
 from datetime import datetime, date, timedelta
 from sqlalchemy import func
 
@@ -61,6 +62,37 @@ def dashboard():
         clases=clases_disponibles
     )
 
+@cliente_bp.route('/clases/<int:clase_id>/inscribir', methods=['POST'])
+@login_required
+def inscribir_clase(clase_id):
+    miembro = Miembro.query.filter_by(usuario_id=current_user.id).first()
+    if not miembro:
+        flash('Debes ser miembro para inscribirte', 'danger')
+        return redirect(url_for('cliente.clases'))
+    clase = Clase.query.get_or_404(clase_id)
+    existe = InscripcionClase.query.filter_by(miembro_id=miembro.id, clase_id=clase.id).first()
+    if existe:
+        flash('Ya estás inscrito en esta clase', 'info')
+    else:
+        insc = InscripcionClase(miembro_id=miembro.id, clase_id=clase.id)
+        db.session.add(insc)
+        db.session.commit()
+        flash(f'Inscrito en {clase.nombre}', 'success')
+    return redirect(url_for('cliente.clases'))
+
+@cliente_bp.route('/clases/<int:clase_id>/cancelar', methods=['POST'])
+@login_required
+def cancelar_inscripcion(clase_id):
+    miembro = Miembro.query.filter_by(usuario_id=current_user.id).first()
+    if not miembro:
+        return redirect(url_for('cliente.clases'))
+    insc = InscripcionClase.query.filter_by(miembro_id=miembro.id, clase_id=clase_id).first()
+    if insc:
+        db.session.delete(insc)
+        db.session.commit()
+        flash('Inscripción cancelada', 'success')
+    return redirect(url_for('cliente.clases'))
+
 @cliente_bp.route('/membresia')
 @login_required
 def membresia():
@@ -77,8 +109,12 @@ def membresia():
 @cliente_bp.route('/clases')
 @login_required
 def clases():
+    miembro = Miembro.query.filter_by(usuario_id=current_user.id).first()
     clases_disponibles = Clase.query.filter_by(activa=True).all()
-    return render_template('cliente/clases.html', clases=clases_disponibles)
+    inscritas = set()
+    if miembro:
+        inscritas = {i.clase_id for i in InscripcionClase.query.filter_by(miembro_id=miembro.id).all()}
+    return render_template('cliente/clases.html', clases=clases_disponibles, inscritas=inscritas, miembro=miembro)
 
 @cliente_bp.route('/asistencia')
 @login_required
