@@ -8,6 +8,7 @@ from app.models.pago import Pago
 from app.models.asistencia import Asistencia
 from app.models.usuario import Usuario
 from app.models.roles import Rol
+from app.models.inscripcion import InscripcionClase
 from app.routes import admin_required, instructor_required
 from datetime import datetime, timedelta, date
 from sqlalchemy import func
@@ -134,11 +135,15 @@ def desactivar(id):
 @admin_required
 def eliminar(id):
     miembro = Miembro.query.get_or_404(id)
+    Asistencia.query.filter_by(miembro_id=miembro.id).delete()
+    InscripcionClase.query.filter_by(miembro_id=miembro.id).delete()
+    Pago.query.filter_by(miembro_id=miembro.id).delete()
+    Membresia.query.filter_by(miembro_id=miembro.id).delete()
+    db.session.delete(miembro)
     if miembro.usuario_id:
         user = Usuario.query.get(miembro.usuario_id)
         if user:
             db.session.delete(user)
-    db.session.delete(miembro)
     db.session.commit()
     flash('Miembro y usuario eliminados permanentemente', 'success')
     return redirect(url_for('miembros.listar'))

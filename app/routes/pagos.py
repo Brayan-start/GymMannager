@@ -154,20 +154,20 @@ def aprobar(id):
     if pago.tipo_membresia_id:
         tipo = TipoMembresia.query.get(pago.tipo_membresia_id)
         if tipo:
-            ahora = bolivia_now()
-            fecha_fin = ahora + timedelta(days=tipo.duracion_dias)
+            fecha_inicio = bolivia_now().date()
+            fecha_fin = fecha_inicio + timedelta(days=tipo.duracion_dias)
 
             if pago.membresia_id:
                 membresia = Membresia.query.get(pago.membresia_id)
                 if membresia:
                     membresia.estado = 'activa'
-                    membresia.fecha_inicio = ahora
+                    membresia.fecha_inicio = fecha_inicio
                     membresia.fecha_fin = fecha_fin
             else:
                 membresia = Membresia(
                     miembro_id=pago.miembro_id,
                     tipo_id=tipo.id,
-                    fecha_inicio=ahora,
+                    fecha_inicio=fecha_inicio,
                     fecha_fin=fecha_fin,
                     estado='activa'
                 )
