@@ -24,7 +24,15 @@
             </div>
             <div class="card-footer bg-transparent">
                 <a href="{{ url_for('membresias.editar_tipo', id=t.id) }}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i> Editar</a>
-                <button type="button" class="btn btn-sm btn-outline-{{ 'danger' if t.activo else 'success' }}" data-bs-toggle="modal" data-bs-target="#modalDelete" data-url="{{ url_for('membresias.eliminar_tipo', id=t.id) }}" data-name="{{ t.nombre }}">
+                <button type="button" class="btn btn-sm btn-outline-{{ 'danger' if t.activo else 'success' }}"
+                    data-bs-toggle="modal" data-bs-target="#modalDelete"
+                    data-url="{{ url_for('membresias.eliminar_tipo', id=t.id) }}"
+                    data-name="{{ t.nombre }}"
+                    data-title="{{ 'Desactivar' if t.activo else 'Activar' }} plan"
+                    data-action="{{ 'Desactivar' if t.activo else 'Activar' }}"
+                    data-btn-class="{{ 'btn-warning' if t.activo else 'btn-success' }}"
+                    data-btn-icon="{{ 'bi-pause-circle' if t.activo else 'bi-play-circle' }}"
+                    data-header-class="{{ 'bg-warning text-white' if t.activo else 'bg-success text-white' }}">
                     {{ 'Desactivar' if t.activo else 'Activar' }}
                 </button>
             </div>

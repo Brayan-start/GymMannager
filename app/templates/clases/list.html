@@ -35,7 +35,15 @@
                 <a href="{{ url_for('clases.checkin', clase_id=c.id) }}" class="btn btn-sm btn-success"><i class="bi bi-check-circle"></i> Check-in</a>
                 {% if current_user.is_admin() %}
                 <a href="{{ url_for('clases.editar', id=c.id) }}" class="btn btn-sm btn-outline-warning">Editar</a>
-                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalDelete" data-url="{{ url_for('clases.eliminar', id=c.id) }}" data-name="{{ c.nombre }}">Desactivar</button>
+                <button type="button" class="btn btn-sm btn-outline-danger"
+                    data-bs-toggle="modal" data-bs-target="#modalDelete"
+                    data-url="{{ url_for('clases.eliminar', id=c.id) }}"
+                    data-name="{{ c.nombre }}"
+                    data-title="Desactivar clase"
+                    data-action="Desactivar"
+                    data-btn-class="btn-warning"
+                    data-btn-icon="bi-pause-circle"
+                    data-header-class="bg-warning text-white">Desactivar</button>
                 {% endif %}
             </div>
         </div>

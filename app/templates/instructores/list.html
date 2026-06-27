@@ -35,9 +35,19 @@
                         <a href="{{ url_for('instructores.toggle_estado', id=i.id) }}" class="btn btn-outline-{{ 'danger' if i.activo else 'success' }}" title="{{ 'Desactivar' if i.activo else 'Activar' }}">
                             {{ 'Desactivar' if i.activo else 'Activar' }}
                         </a>
-                        <form method="POST" action="{{ url_for('instructores.eliminar', id=i.id) }}" style="display:inline" onsubmit="return confirm('¿Eliminar permanentemente a {{ i.nombre_completo }} y su usuario asociado?')">
-                            <button type="submit" class="btn btn-outline-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
-                        </form>
+                        <button type="button" class="btn btn-outline-danger" title="Eliminar"
+                            data-bs-toggle="modal" data-bs-target="#modalDelete"
+                            data-url="{{ url_for('instructores.eliminar', id=i.id) }}"
+                            data-name="{{ i.nombre_completo }}"
+                            data-title="Eliminar instructor"
+                            data-action="Eliminar permanentemente"
+                            data-btn-class="btn-danger"
+                            data-btn-icon="bi-trash"
+                            data-header-class="bg-danger text-white"
+                            data-subtext="El usuario asociado también será eliminado."
+                            data-method="post">
+                            <i class="bi bi-trash"></i>
+                        </button>
                     </div>
                 </td>
             </tr>

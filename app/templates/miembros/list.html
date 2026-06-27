@@ -88,10 +88,30 @@
                         {% else %}
                         <a href="{{ url_for('membresias.asignar', miembro_id=m.id) }}" class="btn btn-outline-primary" title="Renovar"><i class="bi bi-arrow-clockwise"></i></a>
                         {% endif %}
-                        <a href="{{ url_for('miembros.desactivar', id=m.id) }}" class="btn btn-outline-danger" title="Desactivar" onclick="return confirm('¿Estás seguro de que quieres desactivar este miembro?')"><i class="bi bi-person-x"></i></a>
-                        <form method="POST" action="{{ url_for('miembros.eliminar', id=m.id) }}" style="display:inline" onsubmit="return confirm('¿Estás seguro de que quieres ELIMINAR permanentemente este miembro? Esta acción no se puede deshacer.')">
-                            <button type="submit" class="btn btn-outline-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
-                        </form>
+                        <button type="button" class="btn btn-outline-danger" title="Desactivar"
+                            data-bs-toggle="modal" data-bs-target="#modalDelete"
+                            data-url="{{ url_for('miembros.desactivar', id=m.id) }}"
+                            data-name="{{ m.nombre_completo }}"
+                            data-title="Desactivar miembro"
+                            data-action="Desactivar"
+                            data-btn-class="btn-warning"
+                            data-btn-icon="bi-person-x"
+                            data-header-class="bg-warning text-white">
+                            <i class="bi bi-person-x"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" title="Eliminar"
+                            data-bs-toggle="modal" data-bs-target="#modalDelete"
+                            data-url="{{ url_for('miembros.eliminar', id=m.id) }}"
+                            data-name="{{ m.nombre_completo }}"
+                            data-title="Eliminar miembro"
+                            data-action="Eliminar permanentemente"
+                            data-btn-class="btn-danger"
+                            data-btn-icon="bi-trash"
+                            data-header-class="bg-danger text-white"
+                            data-subtext="Esta acción no se puede deshacer."
+                            data-method="post">
+                            <i class="bi bi-trash"></i>
+                        </button>
                     </div>
                 </td>
             </tr>

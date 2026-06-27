@@ -27,8 +27,53 @@ document.addEventListener('DOMContentLoaded', function() {
             const btn = event.relatedTarget;
             const url = btn.getAttribute('data-url');
             const name = btn.getAttribute('data-name');
-            document.getElementById('deleteModalBtn').href = url;
-            document.getElementById('deleteModalMessage').textContent = '¿Estás seguro de eliminar "' + name + '"?';
+            const title = btn.getAttribute('data-title') || 'Confirmar';
+            const action = btn.getAttribute('data-action') || 'Eliminar';
+            const btnClass = btn.getAttribute('data-btn-class') || 'btn-danger';
+            const headerClass = btn.getAttribute('data-header-class') || 'bg-danger text-white';
+            const btnIcon = btn.getAttribute('data-btn-icon') || 'bi-trash';
+            const subtext = btn.getAttribute('data-subtext') || '';
+
+            document.getElementById('modalDeleteForm').action = url;
+            document.getElementById('modalDeleteTitle').innerHTML = '<i class="bi bi-exclamation-triangle"></i> ' + title;
+            document.getElementById('modalDeleteMessage').textContent = name
+                ? '\u00bfEst\u00e1s seguro de que quieres ' + action.toLowerCase() + ' "' + name + '"?'
+                : '\u00bfEst\u00e1s seguro?';
+
+            const confirmBtn = document.getElementById('modalDeleteBtn');
+            confirmBtn.className = 'btn ' + btnClass + ' px-4';
+            confirmBtn.innerHTML = '<i class="bi ' + btnIcon + '"></i> ' + action;
+
+            const header = document.getElementById('modalDeleteHeader');
+            header.className = 'modal-header ' + headerClass;
+
+            const subtextEl = document.getElementById('modalDeleteSubtext');
+            if (subtext) {
+                if (!subtextEl) {
+                    const msgEl = document.getElementById('modalDeleteMessage');
+                    const p = document.createElement('p');
+                    p.id = 'modalDeleteSubtext';
+                    p.className = 'text-muted small mt-2';
+                    p.textContent = subtext;
+                    msgEl.parentNode.appendChild(p);
+                } else {
+                    subtextEl.textContent = subtext;
+                }
+            } else if (subtextEl) {
+                subtextEl.remove();
+            }
+
+            const method = btn.getAttribute('data-method') || 'get';
+            if (method.toLowerCase() === 'post') {
+                confirmBtn.href = 'javascript:void(0)';
+                confirmBtn.onclick = function(e) {
+                    e.preventDefault();
+                    document.getElementById('modalDeleteForm').submit();
+                };
+            } else {
+                confirmBtn.href = url;
+                confirmBtn.onclick = null;
+            }
         });
     }
 

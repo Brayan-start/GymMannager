@@ -58,7 +58,15 @@
                 </td>
                 <td>
                     <a href="{{ url_for('promociones.editar', id=p.id) }}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>
-                    <button type="button" class="btn btn-sm btn-outline-{{ 'danger' if p.activo else 'success' }}" data-bs-toggle="modal" data-bs-target="#modalDelete" data-url="{{ url_for('promociones.eliminar', id=p.id) }}" data-name="{{ p.nombre }}">
+                    <button type="button" class="btn btn-sm btn-outline-{{ 'danger' if p.activo else 'success' }}"
+                        data-bs-toggle="modal" data-bs-target="#modalDelete"
+                        data-url="{{ url_for('promociones.eliminar', id=p.id) }}"
+                        data-name="{{ p.nombre }}"
+                        data-title="{{ 'Desactivar' if p.activo else 'Activar' }} promoción"
+                        data-action="{{ 'Desactivar' if p.activo else 'Activar' }}"
+                        data-btn-class="{{ 'btn-warning' if p.activo else 'btn-success' }}"
+                        data-btn-icon="{{ 'bi-pause-circle' if p.activo else 'bi-play-circle' }}"
+                        data-header-class="{{ 'bg-warning text-white' if p.activo else 'bg-success text-white' }}">
                         {{ 'Desactivar' if p.activo else 'Activar' }}
                     </button>
                 </td>
