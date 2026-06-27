@@ -32,7 +32,10 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
         user = Usuario.query.filter_by(email=email).first()
-        if user and user.check_password(password) and user.activo:
+        if user and user.check_password(password):
+            if not user.activo:
+                flash('Tu cuenta ha sido desactivada. Contacta al administrador.', 'danger')
+                return render_template('auth/login.html')
             login_user(user)
             next_page = request.args.get('next')
             flash(f'Bienvenido, {user.username}', 'success')
