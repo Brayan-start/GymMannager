@@ -69,7 +69,7 @@ def create_app(config_name='default'):
                 if admin_rol:
                     admin = Usuario(
                         username='Brayan',
-                        email='admin@gymmanager.com',
+                        email='condorichbrayan@gmail.com',
                         rol_id=admin_rol.id,
                         activo=True
                     )
