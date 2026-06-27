@@ -32,9 +32,12 @@
                     <div class="btn-group btn-group-sm">
                         <a href="{{ url_for('instructores.ver', id=i.id) }}" class="btn btn-outline-info" title="Ver perfil"><i class="bi bi-eye"></i></a>
                         <a href="{{ url_for('instructores.editar', id=i.id) }}" class="btn btn-outline-warning" title="Editar"><i class="bi bi-pencil"></i></a>
-                        <a href="{{ url_for('instructores.eliminar', id=i.id) }}" class="btn btn-outline-{{ 'danger' if i.activo else 'success' }}" title="{{ 'Desactivar' if i.activo else 'Activar' }}">
+                        <a href="{{ url_for('instructores.toggle_estado', id=i.id) }}" class="btn btn-outline-{{ 'danger' if i.activo else 'success' }}" title="{{ 'Desactivar' if i.activo else 'Activar' }}">
                             {{ 'Desactivar' if i.activo else 'Activar' }}
                         </a>
+                        <form method="POST" action="{{ url_for('instructores.eliminar', id=i.id) }}" style="display:inline" onsubmit="return confirm('¿Eliminar permanentemente a {{ i.nombre_completo }} y su usuario asociado?')">
+                            <button type="submit" class="btn btn-outline-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+                        </form>
                     </div>
                 </td>
             </tr>

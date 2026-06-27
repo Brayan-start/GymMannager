@@ -81,14 +81,28 @@ def editar(id):
         return redirect(url_for('instructores.ver', id=instructor.id))
     return render_template('instructores/form.html', instructor=instructor)
 
-@instructores_bp.route('/eliminar/<int:id>')
+@instructores_bp.route('/toggle-estado/<int:id>')
 @login_required
 @admin_required
-def eliminar(id):
+def toggle_estado(id):
     instructor = Instructor.query.get_or_404(id)
     instructor.activo = not instructor.activo
     db.session.commit()
     flash('Estado cambiado', 'success')
+    return redirect(url_for('instructores.listar'))
+
+@instructores_bp.route('/eliminar/<int:id>', methods=['POST'])
+@login_required
+@admin_required
+def eliminar(id):
+    instructor = Instructor.query.get_or_404(id)
+    if instructor.usuario_id:
+        user = Usuario.query.get(instructor.usuario_id)
+        if user:
+            db.session.delete(user)
+    db.session.delete(instructor)
+    db.session.commit()
+    flash('Instructor y usuario eliminados permanentemente', 'success')
     return redirect(url_for('instructores.listar'))
 
 @instructores_bp.route('/ver/<int:id>')
