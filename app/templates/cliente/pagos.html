@@ -18,8 +18,8 @@
                     <td><strong>{{ "%.2f"|format(p.monto) }} Bs.</strong></td>
                     <td><span class="badge bg-info">{{ p.metodo_pago|capitalize }}</span></td>
                     <td>
-                        {% if p.estado == 'pagado' %}
-                        <span class="badge bg-success">Aprobado</span>
+                        {% if p.estado == 'aprobado' or p.estado == 'pagado' %}
+                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Aprobado</span>
                         {% elif p.estado == 'rechazado' %}
                         <span class="badge bg-danger">Rechazado</span>
                         <button type="button" class="btn btn-sm btn-outline-danger ms-1" title="{{ p.motivo_rechazo }}" data-bs-toggle="tooltip"><i class="bi bi-info-circle"></i></button>
