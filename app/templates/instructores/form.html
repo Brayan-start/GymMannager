@@ -23,8 +23,8 @@
                             <input type="text" name="telefono" class="form-control" value="{{ instructor.telefono if instructor else '' }}">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control" value="{{ instructor.email if instructor else '' }}">
+                            <label class="form-label"><i class="bi bi-envelope"></i> Email</label>
+                            <input type="email" name="email" id="emailInstructor" class="form-control" value="{{ instructor.email if instructor else '' }}">
                         </div>
                     </div>
                     <div class="mb-3">
@@ -43,13 +43,13 @@
                     </div>
                     <div id="usuario-fields" style="display:none">
                         <div class="mb-3">
-                            <label class="form-label">Correo electrónico</label>
-                            <input type="email" name="username" class="form-control" id="instructorEmail" placeholder="correo@ejemplo.com">
-                            <small class="text-muted">Este será tu usuario para iniciar sesión.</small>
+                            <label class="form-label"><i class="bi bi-envelope"></i> Correo electrónico para acceso</label>
+                            <input type="email" name="username" class="form-control" id="instructorEmail" placeholder="ejemplo@correo.com">
+                            <small class="text-muted">Se copiará automáticamente del email del instructor.</small>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Contraseña</label>
-                            <input type="password" name="password" class="form-control">
+                            <label class="form-label"><i class="bi bi-lock"></i> Contraseña</label>
+                            <input type="password" name="password" class="form-control" placeholder="Mínimo 4 caracteres">
                         </div>
                     </div>
                     {% endif %}
@@ -65,8 +65,14 @@
 {% endblock %}
 {% block scripts %}
 <script>
-document.getElementById('crear_usuario')?.addEventListener('change', function() {
-    document.getElementById('usuario-fields').style.display = this.checked ? 'block' : 'none';
+const cb = document.getElementById('crear_usuario');
+const userFields = document.getElementById('usuario-fields');
+cb?.addEventListener('change', function() {
+    userFields.style.display = this.checked ? 'block' : 'none';
+});
+document.getElementById('emailInstructor')?.addEventListener('input', function() {
+    const target = document.getElementById('instructorEmail');
+    if (target) target.value = this.value;
 });
 </script>
 {% endblock %}
