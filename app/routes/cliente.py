@@ -28,6 +28,7 @@ def dashboard():
     miembro = Miembro.query.filter_by(usuario_id=current_user.id).first()
 
     membresia_activa = None
+    membresia_vencida = None
     ultimos_pagos = []
     asistencias_recientes = []
     clases_disponibles = Clase.query.filter_by(activa=True).all()
@@ -36,6 +37,13 @@ def dashboard():
         membresia_activa = Membresia.query.filter_by(
             miembro_id=miembro.id, estado='activa'
         ).filter(Membresia.fecha_fin >= datetime.utcnow()).first()
+
+        membresia_vencida = Membresia.query.filter_by(
+            miembro_id=miembro.id, estado='activa'
+        ).filter(Membresia.fecha_fin < datetime.utcnow()).first()
+        if membresia_vencida:
+            membresia_vencida.estado = 'vencida'
+            db.session.commit()
 
         ultimos_pagos = Pago.query.filter_by(
             miembro_id=miembro.id
@@ -56,6 +64,7 @@ def dashboard():
     return render_template('cliente/dashboard.html',
         miembro=miembro,
         membresia=membresia_activa,
+        membresia_vencida=membresia_vencida,
         pagos=ultimos_pagos,
         asistencias=asistencias_recientes,
         asistencias_mes=asistencias_mes,
@@ -97,14 +106,17 @@ def cancelar_inscripcion(clase_id):
 @login_required
 def membresia():
     miembro = Miembro.query.filter_by(usuario_id=current_user.id).first()
-    membresia_activa = None
+    membresia = None
     if miembro:
-        membresia_activa = Membresia.query.filter_by(
-            miembro_id=miembro.id, estado='activa'
+        membresia = Membresia.query.filter_by(miembro_id=miembro.id, estado='activa'
         ).filter(Membresia.fecha_fin >= datetime.utcnow()).first()
+        if not membresia:
+            membresia = Membresia.query.filter_by(
+                miembro_id=miembro.id
+            ).order_by(Membresia.fecha_fin.desc()).first()
     tipos = TipoMembresia.query.filter_by(activo=True).all()
     return render_template('cliente/membresia.html',
-        miembro=miembro, membresia=membresia_activa, tipos=tipos)
+        miembro=miembro, membresia=membresia, tipos=tipos)
 
 @cliente_bp.route('/clases')
 @login_required

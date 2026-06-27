@@ -6,6 +6,17 @@
 </div>
 
 <div class="row mb-4">
+    {% if membresia_vencida %}
+    <div class="col-12 mb-3">
+        <div class="alert alert-danger d-flex align-items-center justify-content-between flex-wrap gap-2 mb-0">
+            <div>
+                <i class="bi bi-exclamation-triangle-fill fs-4 me-2"></i>
+                <span><strong>Membresía vencida</strong> — Tu membresía venció el {{ membresia_vencida.fecha_fin.strftime('%d/%m/%Y') }}. Renuévala para seguir accediendo a las clases.</span>
+            </div>
+            <a href="{{ url_for('cliente.membresia') }}" class="btn btn-warning"><i class="bi bi-arrow-clockwise"></i> Renovar membresía</a>
+        </div>
+    </div>
+    {% endif %}
     <div class="col-md-4 mb-3">
         <div class="card shadow h-100 card-border-top-success">
             <div class="card-body">
