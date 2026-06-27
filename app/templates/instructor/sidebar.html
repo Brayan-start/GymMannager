@@ -5,7 +5,7 @@
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link sidebar-link {{ 'active' if request.endpoint == 'instructor.asistencia' }}" href="{{ url_for('instructor.asistencia') }}">
+        <a class="nav-link sidebar-link {{ 'active' if request.endpoint == 'instructor.clases' or request.endpoint == 'instructor.asistencia_clase' }}" href="{{ url_for('instructor.clases') }}">
             <i class="bi bi-clipboard-check"></i> Registrar Asistencia
         </a>
     </li>

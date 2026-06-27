@@ -59,20 +59,7 @@ def dashboard():
 @login_required
 @instructor_required
 def asistencia():
-    instr = Instructor.query.filter_by(usuario_id=current_user.id).first()
-    hoy = bolivia_date()
-    hoy_label = hoy_dia_semana()
-    clases_hoy_ids = [h.clase_id for h in Horario.query.filter_by(dia_semana=hoy_label).all()]
-    clases = Clase.query.filter(Clase.id.in_(clases_hoy_ids), Clase.activa == True).all() if clases_hoy_ids else []
-    asistencias = Asistencia.query.filter(
-        func.date(Asistencia.fecha) == hoy
-    ).order_by(Asistencia.hora_checkin.desc()).all()
-    mi_asistencia = AsistenciaInstructor.query.filter_by(
-        instructor_id=instr.id if instr else 0
-    ).order_by(AsistenciaInstructor.fecha.desc()).limit(20).all()
-    return render_template('instructor/asistencia.html',
-        clases=clases, asistencias=asistencias, fecha=hoy,
-        mi_asistencia=mi_asistencia, now=bolivia_now())
+    return redirect(url_for('instructor.clases'))
 
 @instructor_bp.route('/clases')
 @login_required
