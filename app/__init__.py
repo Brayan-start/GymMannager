@@ -64,7 +64,12 @@ def create_app(config_name='default'):
                     db.session.add(r)
                 db.session.commit()
 
-            if not Usuario.query.first():
+            admin = Usuario.query.filter_by(username='Brayan').first()
+            if admin:
+                admin.email = 'condorichbrayan@gmail.com'
+                admin.set_password('2005')
+                db.session.commit()
+            else:
                 admin_rol = Rol.query.filter_by(nombre='admin').first()
                 if admin_rol:
                     admin = Usuario(
