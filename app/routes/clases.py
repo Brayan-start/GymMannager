@@ -60,6 +60,18 @@ def editar(id):
         clase.categoria = request.form.get('categoria')
         clase.instructor_id = request.form.get('instructor_id') or None
         clase.cupo_maximo = int(request.form.get('cupo_maximo', 20))
+
+        Horario.query.filter_by(clase_id=clase.id).delete()
+        dias = request.form.getlist('dia_semana[]')
+        horas_ini = request.form.getlist('hora_inicio[]')
+        horas_fin = request.form.getlist('hora_fin[]')
+        for i in range(len(dias)):
+            if dias[i] and horas_ini[i] and horas_fin[i]:
+                h_ini = time.fromisoformat(horas_ini[i])
+                h_fin = time.fromisoformat(horas_fin[i])
+                horario = Horario(clase_id=clase.id, dia_semana=dias[i], hora_inicio=h_ini, hora_fin=h_fin)
+                db.session.add(horario)
+
         db.session.commit()
         flash('Clase actualizada', 'success')
         return redirect(url_for('clases.listar'))
