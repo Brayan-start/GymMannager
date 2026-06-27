@@ -29,9 +29,9 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('auth.redirect_by_role'))
     if request.method == 'POST':
-        username = request.form.get('username')
+        email = request.form.get('email')
         password = request.form.get('password')
-        user = Usuario.query.filter_by(username=username).first()
+        user = Usuario.query.filter_by(email=email).first()
         if user and user.check_password(password) and user.activo:
             login_user(user)
             next_page = request.args.get('next')
@@ -39,7 +39,7 @@ def login():
             if next_page:
                 return redirect(next_page)
             return redirect(url_for('auth.redirect_by_role'))
-        flash('Usuario o contraseña incorrectos', 'danger')
+        flash('Correo o contraseña incorrectos', 'danger')
     return render_template('auth/login.html')
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
