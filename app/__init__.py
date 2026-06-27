@@ -22,7 +22,8 @@ def create_app(config_name='default'):
 
     @login_manager.user_loader
     def load_user(user_id):
-        return Usuario.query.get(int(user_id))
+        from sqlalchemy.orm import joinedload
+        return Usuario.query.options(joinedload(Usuario.rol)).get(int(user_id))
 
     from app.routes.auth import auth_bp
     from app.routes.miembros import miembros_bp
@@ -55,23 +56,27 @@ def create_app(config_name='default'):
         db.create_all()
 
         from app.models.roles import Rol
-        if not Rol.query.first():
-            roles = [Rol(nombre=r) for r in ['admin', 'instructor', 'cliente']]
-            for r in roles:
-                db.session.add(r)
-            db.session.commit()
-
-        if not Usuario.query.first():
-            admin_rol = Rol.query.filter_by(nombre='admin').first()
-            if admin_rol:
-                admin = Usuario(
-                    username='Brayan',
-                    email='admin@gymmanager.com',
-                    rol_id=admin_rol.id,
-                    activo=True
-                )
-                admin.set_password('2005')
-                db.session.add(admin)
+        from sqlalchemy.exc import IntegrityError
+        try:
+            if not Rol.query.first():
+                roles = [Rol(nombre=r) for r in ['admin', 'instructor', 'cliente']]
+                for r in roles:
+                    db.session.add(r)
                 db.session.commit()
+
+            if not Usuario.query.first():
+                admin_rol = Rol.query.filter_by(nombre='admin').first()
+                if admin_rol:
+                    admin = Usuario(
+                        username='Brayan',
+                        email='admin@gymmanager.com',
+                        rol_id=admin_rol.id,
+                        activo=True
+                    )
+                    admin.set_password('2005')
+                    db.session.add(admin)
+                    db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
 
     return flask_app

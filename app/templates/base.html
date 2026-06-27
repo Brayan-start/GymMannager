@@ -50,7 +50,7 @@
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
                                 <i class="bi bi-person-circle fs-5 me-1"></i>
                                 <span>{{ current_user.username }}</span>
-                                <span class="badge bg-success ms-2">{{ current_user.rol.nombre|capitalize }}</span>
+                                <span class="badge bg-success ms-2">{{ (current_user.rol.nombre if current_user.rol else 'Usuario')|capitalize }}</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="{{ url_for('auth.redirect_by_role') }}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
