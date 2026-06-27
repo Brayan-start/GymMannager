@@ -10,7 +10,7 @@
 <div class="table-responsive">
     <table class="table table-hover align-middle">
         <thead class="table-dark">
-            <tr><th>#</th><th>Fecha</th><th>Miembro</th><th>Plan</th><th>Monto</th><th>Comprobante</th><th>Acciones</th></tr>
+            <tr><th>#</th><th>Fecha</th><th>Miembro</th><th>Plan</th><th>Monto</th><th>Método</th><th>Detalle</th><th>Acciones</th></tr>
         </thead>
         <tbody>
             {% for p in pagos %}
@@ -21,7 +21,14 @@
                 <td>{{ p.tipo_membresia.nombre if p.tipo_membresia else '—' }}</td>
                 <td><strong class="text-success">{{ "%.2f"|format(p.monto) }} Bs.</strong></td>
                 <td>
-                    {% if p.comprobante_url %}
+                    <span class="badge bg-{{ 'secondary' if p.metodo_pago == 'efectivo' else 'info' }}">
+                        {{ p.metodo_pago|capitalize }}
+                    </span>
+                </td>
+                <td>
+                    {% if p.metodo_pago == 'efectivo' %}
+                    <span class="text-muted"><i class="bi bi-cash"></i> Pago en efectivo</span>
+                    {% elif p.comprobante_url %}
                     <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalComprobante{{ p.id }}">
                         <i class="bi bi-eye"></i> Ver
                     </button>
@@ -30,8 +37,8 @@
                     {% endif %}
                 </td>
                 <td>
-                    <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modalAprobar{{ p.id }}">
-                        <i class="bi bi-check-lg"></i> Aprobar
+                    <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modalConfirmar{{ p.id }}">
+                        <i class="bi bi-check-lg"></i> Confirmar pago
                     </button>
                     <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalRechazar{{ p.id }}">
                         <i class="bi bi-x-lg"></i> Rechazar
@@ -59,22 +66,25 @@
             </div>
             {% endif %}
 
-            <div class="modal fade" id="modalAprobar{{ p.id }}" tabindex="-1">
+            <div class="modal fade" id="modalConfirmar{{ p.id }}" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header bg-success text-white">
-                            <h5 class="modal-title"><i class="bi bi-check-circle"></i> Confirmar Aprobación</h5>
+                            <h5 class="modal-title"><i class="bi bi-check-circle"></i> Confirmar pago</h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body text-center py-4">
                             <i class="bi bi-question-circle fs-1 text-success mb-3 d-block"></i>
-                            <h5>¿Aprobar pago de <strong>{{ "%.2f"|format(p.monto) }} Bs.</strong> de <strong>{{ p.miembro.nombre_completo }}</strong>?</h5>
-                            <p class="text-muted mt-2">Su membresía se activará automáticamente.</p>
+                            <h5>¿Confirmar pago de <strong>{{ "%.2f"|format(p.monto) }} Bs.</strong> de <strong>{{ p.miembro.nombre_completo }}</strong>?</h5>
+                            <p class="text-muted mt-2">
+                                Método: <span class="badge bg-{{ 'secondary' if p.metodo_pago == 'efectivo' else 'info' }}">{{ p.metodo_pago|capitalize }}</span>
+                                &mdash; Su membresía se activará automáticamente.
+                            </p>
                         </div>
                         <div class="modal-footer justify-content-center">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                             <form method="POST" action="{{ url_for('pagos.aprobar', id=p.id) }}">
-                                <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Sí, Aprobar Pago</button>
+                                <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Confirmar pago</button>
                             </form>
                         </div>
                     </div>
@@ -85,12 +95,12 @@
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header bg-danger text-white">
-                            <h5 class="modal-title"><i class="bi bi-x-circle"></i> Rechazar Pago</h5>
+                            <h5 class="modal-title"><i class="bi bi-x-circle"></i> Rechazar pago</h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                         </div>
                         <form method="POST" action="{{ url_for('pagos.rechazar', id=p.id) }}">
                             <div class="modal-body">
-                                <p><strong>{{ p.miembro.nombre_completo }}</strong> - {{ "%.2f"|format(p.monto) }} Bs.</p>
+                                <p><strong>{{ p.miembro.nombre_completo }}</strong> - {{ "%.2f"|format(p.monto) }} Bs. <span class="badge bg-{{ 'secondary' if p.metodo_pago == 'efectivo' else 'info' }}">{{ p.metodo_pago|capitalize }}</span></p>
                                 <div class="mb-3">
                                     <label class="form-label">Motivo del rechazo *</label>
                                     <textarea name="motivo_rechazo" class="form-control" rows="3" required placeholder="Ej: El comprobante no es legible, monto incorrecto, etc."></textarea>
@@ -98,7 +108,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="submit" class="btn btn-danger"><i class="bi bi-x-lg"></i> Rechazar Pago</button>
+                                <button type="submit" class="btn btn-danger"><i class="bi bi-x-lg"></i> Rechazar pago</button>
                             </div>
                         </form>
                     </div>

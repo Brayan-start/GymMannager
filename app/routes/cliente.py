@@ -185,32 +185,18 @@ def adquirir_membresia(tipo_id):
         dias = tipo.duracion_dias
 
         if metodo == 'efectivo':
-            fecha_inicio = datetime.utcnow()
-            fecha_fin = fecha_inicio + timedelta(days=dias)
-            membresia = Membresia(
-                miembro_id=miembro.id,
-                tipo_id=tipo.id,
-                fecha_inicio=fecha_inicio,
-                fecha_fin=fecha_fin,
-                estado='activa'
-            )
-            db.session.add(membresia)
-            db.session.flush()
-
             pago = Pago(
                 miembro_id=miembro.id,
-                membresia_id=membresia.id,
                 tipo_membresia_id=tipo.id,
                 monto=precio,
                 metodo_pago='efectivo',
-                estado='pagado',
+                estado='pendiente',
                 referencia='Adquirido por web'
             )
             db.session.add(pago)
-            miembro.estado = 'activo'
             db.session.commit()
-            flash(f'¡Bienvenido! Tu membresía {tipo.nombre} está activa', 'success')
-            return redirect(url_for('cliente.dashboard'))
+            flash('Pago registrado. Tu membresía se activará cuando el administrador confirme el pago.', 'success')
+            return redirect(url_for('cliente.pagos'))
         else:
             pago = Pago(
                 miembro_id=miembro.id,
