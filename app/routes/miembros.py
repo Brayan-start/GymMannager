@@ -126,8 +126,12 @@ def ver(id):
 def desactivar(id):
     miembro = Miembro.query.get_or_404(id)
     miembro.estado = 'inactivo'
+    if miembro.usuario_id:
+        user = Usuario.query.get(miembro.usuario_id)
+        if user:
+            user.activo = False
     db.session.commit()
-    flash('Miembro desactivado', 'success')
+    flash('Usuario desactivado correctamente', 'warning')
     return redirect(url_for('miembros.listar'))
 
 @miembros_bp.route('/eliminar/<int:id>', methods=['POST'])
